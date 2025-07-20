@@ -1,5 +1,60 @@
 # AI_Agent_Forecast
-AI Agent using Regression Project
+
+# 🛍️ Retail Demand Forecasting with Linear Regression and RGBoost
+
+## 📖 Project Description
+
+This project presents a machine learning solution for **retail demand forecasting** using historical sales data. Accurate forecasting is crucial in retail to maintain optimal inventory levels, reduce operational costs, and improve customer satisfaction. Poor forecasts can result in stockouts, overstocking, lost revenue, and logistical inefficiencies.
+
+You will develop regression-based models to predict store-level sales, leveraging both **Linear Regression** and **RGBoost**. The project emphasizes both technical implementation and practical business application.
+
+### 🔍 Key Objectives
+
+By the end of this project, you will be able to:
+
+- Load and explore real-world time series sales data
+- Conduct comprehensive preprocessing, including feature scaling and one-hot encoding
+- Split data effectively into training and testing subsets
+- Build and evaluate **Linear Regression** and **RGBoost Regression** models
+- Interpret model coefficients and key performance metrics (e.g., RMSE, R²)
+- Apply cross-validation techniques to ensure model reliability
+- Translate model outputs into actionable insights for business use
+
+### 🏢 Business Impact
+
+This type of predictive modeling supports data-driven decision-making across the retail value chain, including:
+
+- **Supply Chain Managers** – plan inventory replenishment and optimize stock levels  
+- **Procurement Teams** – manage vendors and make informed purchasing decisions  
+- **Merchandisers** – align product availability with consumer demand trends  
+- **Operations Managers** – anticipate workload and allocate resources  
+- **Store Managers** – prepare for seasonal and regional demand fluctuations  
+- **Marketing Teams** – plan promotions around predicted sales trends  
+- **Finance & Budgeting Teams** – improve revenue forecasting and cost planning  
+- **Business Analysts & Data Scientists** – uncover insights and refine strategies  
+
+---
+
+## 🚀 Features
+
+- End-to-end pipeline for regression modeling on time series retail data
+- Data filtering and outlier removal using percentiles
+- One-hot encoding of categorical features
+- Dual-model comparison: Linear Regression vs RGBoost
+- Cross-validation for robust evaluation
+- Interpretation of regression outputs in a business context
+
+
+---
+
+## 🧪 Dataset
+
+The dataset is from the Kaggle competition:  
+**[Store Sales - Time Series Forecasting](https://www.kaggle.com/competitions/store-sales-time-series-forecasting)**
+
+> 📎 Note: You must authenticate using your Kaggle API key (`kaggle.json`) to download the dataset.
+
+---
 
 ## 🔑 Kaggle API Authentication
 
@@ -12,7 +67,36 @@ To run this notebook, you must upload your own `kaggle.json` file.
 
 *Do not share your `kaggle.json` publicly.*
 
-### Description of Columns that will be used for analysis
+## 💻 Usage
+
+To run the project:
+
+Clone the repository
+
+bash
+Copy
+Edit
+git clone https://github.com/yourusername/your-repo-name.git
+cd your-repo-name
+Open the notebook (notebook.ipynb) in Jupyter or Colab
+
+Upload your kaggle.json file when prompted
+
+Run the cells step by step
+
+## 📊 Results
+Model performance is evaluated using
+
+Root Mean Squared Error (RMSE)
+
+R² Score:
+
+Cross-validation scores
+
+Comparison between Linear Regression and RGBoost models is included in the notebook.
+
+
+## Description of Columns that will be used for analysis
 
 - Id: Unique ID combining date, store_nbr, and family (product category)
 - Date: The date of each obseravtion
@@ -28,4 +112,11 @@ To run this notebook, you must upload your own `kaggle.json` file.
 - Transactions: Total number of transactions processed at the store on that date
 - Holiday_Type: Holiday and event
 
-  
+
+
+## 📘 Credits
+
+- Code structure inspired by materials from **Prof. Mr. Avinash Jairam**, CIS 9660 - Data Mining for Business Analytics course.
+- **ChatGPT by OpenAI** was used to clarify Python syntax, assist with implementation strategies, and explore alternatives for data preprocessing and modeling.
+- All results, analysis, and business interpretations are original and completed independently.
+
