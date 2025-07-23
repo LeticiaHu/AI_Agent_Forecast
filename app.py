@@ -106,8 +106,8 @@ def load_models():
     xgb_model.load_model("xgb_sales_model.json")
     linear_model = joblib.load("linear_model.pkl")
     feature_list = joblib.load("model_features.pkl")
-    X_train = pd.read_csv("X_train.csv").astype(float)
-    y_train = pd.read_csv("y_train.csv").astype(float)
+    X_train = pd.read_csv("X_train.csv.gz").astype(float)
+    y_train = pd.read_csv("y_train.csv.gz").astype(float)
     df1 = pd.read_csv("processed_sales_data.csv.gz").astype(float)
 
     return xgb_model, linear_model, feature_list, X_train, y_train, df1
