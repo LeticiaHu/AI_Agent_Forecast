@@ -197,7 +197,7 @@ input_dict[city] = 1
 input_dict[holiday] = 1
 input_dict[family] = 1
 
-st.write("✅ Reached line 200")
+
 # Create DataFrame in correct feature order
 input_data = pd.DataFrame([input_dict])[feature_list]
 
@@ -238,6 +238,7 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
 # Prediction Based on Selected Model
 # --------------------------
 st.subheader("📈 Model Prediction with Confidence Interval")
+st.write("✅ Reached line 241")
 
 X_train_const = sm.add_constant(x_train)
 ols_model = sm.OLS(y_train, X_train_const).fit()
