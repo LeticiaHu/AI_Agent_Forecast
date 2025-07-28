@@ -243,9 +243,13 @@ st.write("📌 x_train shape:", x_train.shape)
 st.write("📌 y_train shape:", y_train.shape)
 st.write("📌 x_train columns:", x_train.columns.tolist())
 
-X_train_const = sm.add_constant(x_train)
-ols_model = sm.OLS(y_train, X_train_const).fit()
-train_columns = X_train_const.columns
+if x_train.isnull().any().any() or y_train.isnull().any():
+    st.error("❌ NaNs detected in training data.")
+else:
+    X_train_const = sm.add_constant(x_train)
+    ols_model = sm.OLS(y_train, X_train_const).fit()
+    train_columns = X_train_const.columns
+
 
 model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
 if input_valid:
