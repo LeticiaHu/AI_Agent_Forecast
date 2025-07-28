@@ -239,6 +239,9 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
 # --------------------------
 st.subheader("📈 Model Prediction with Confidence Interval")
 st.write("✅ Reached line 241")
+st.write("📌 x_train shape:", x_train.shape)
+st.write("📌 y_train shape:", y_train.shape)
+st.write("📌 x_train columns:", x_train.columns.tolist())
 
 X_train_const = sm.add_constant(x_train)
 ols_model = sm.OLS(y_train, X_train_const).fit()
