@@ -218,7 +218,7 @@ def predict_lr_with_ci(model, X_input, train_columns):
     lower = summary["obs_ci_lower"].values[0]
     upper = summary["obs_ci_upper"].values[0]
     return pred_mean, lower, upper
-st.write("✅ Reached line 221")
+
 
 # --------------------------
 # XGBoost CI via Bootstrapping
@@ -258,7 +258,7 @@ if input_valid:
 else:
     st.warning("⚠️ Please fix input errors before generating predictions.")
 
-
+st.write("✅ Reached line 261")
 # Add the RSquared and evaluation metrics
 # --- Load saved metrics ---
 with open("model_metrics.json", "r") as f:
