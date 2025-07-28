@@ -249,7 +249,7 @@ st.write("📌 x_train columns:", x_train.columns.tolist())
 #     ols_model = sm.OLS(y_train, X_train_const).fit()
 #     train_columns = X_train_const.columns
 
-    st.write("✅ Reached after fitting OLS model")
+st.write("✅ Reached after fitting OLS model")
 
 
 model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
