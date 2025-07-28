@@ -174,7 +174,7 @@ if onpromotion > 500 and transactions < 50:
 
 
 # --- Build Input Data ---
-input_dict = {col: 0 for col in model_features}  # default all to 0
+input_dict = {col: 0 for col in feature_list}  # default all to 0
 
 # Add numeric inputs
 input_dict.update({
@@ -199,7 +199,7 @@ input_dict[holiday] = 1
 input_dict[family] = 1
 
 # Create DataFrame in correct feature order
-input_data = pd.DataFrame([input_dict])[model_features]
+input_data = pd.DataFrame([input_dict])[feature_list]
 
 # Simulate prediction uncertainty using bootstrapping
 # --------------------------
@@ -310,7 +310,7 @@ st.plotly_chart(fig, use_container_width=True)
 # After your existing input_dict is built and single prediction code
 # Prepare predictions for all families dynamically
 base_input = input_dict.copy()
-family_features = [f for f in model_features if f.startswith("family_grouped_")]
+family_features = [f for f in feature_list if f.startswith("family_grouped_")]
 
 # Zero out family features first
 for fam in family_features:
@@ -319,7 +319,7 @@ for fam in family_features:
 preds = []
 for fam in family_features:
     base_input[fam] = 1
-    df = pd.DataFrame([base_input])[model_features]
+    df = pd.DataFrame([base_input])[feature_list]
     pred = xgb_model.predict(df)[0]
     preds.append((fam.replace("family_grouped_", ""), pred))
     base_input[fam] = 0
