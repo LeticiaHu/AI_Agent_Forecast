@@ -197,6 +197,7 @@ input_dict[city] = 1
 input_dict[holiday] = 1
 input_dict[family] = 1
 
+st.write("✅ Reached line 200")
 # Create DataFrame in correct feature order
 input_data = pd.DataFrame([input_dict])[feature_list]
 
@@ -217,6 +218,7 @@ def predict_lr_with_ci(model, X_input, train_columns):
     lower = summary["obs_ci_lower"].values[0]
     upper = summary["obs_ci_upper"].values[0]
     return pred_mean, lower, upper
+st.write("✅ Reached line 221")
 
 # --------------------------
 # XGBoost CI via Bootstrapping
