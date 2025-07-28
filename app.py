@@ -112,7 +112,7 @@ def load_models():
 
     return xgb_model, linear_model, feature_list, x_train, y_train, df1
 
-xgb_model, linear_model, model_features, x_train, y_train, df1 = load_models()
+xgb_model, linear_model, feature_list, x_train, y_train, df1 = load_models()
 
 
 # Sidebar for inputs
