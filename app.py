@@ -106,13 +106,13 @@ def load_models():
     xgb_model.load_model("xgb_sales_model.json")
     linear_model = joblib.load("linear_model.pkl")
     feature_list = joblib.load("model_features.pkl")
-    X_train = pd.read_csv("X_train.csv.gz").astype(float)
+    x_train = pd.read_csv("X_train.csv.gz").astype(float)
     y_train = pd.read_csv("y_train.csv.gz").astype(float)
     df1 = pd.read_csv("processed_sales_data.csv.gz").astype(float)
 
-    return xgb_model, linear_model, feature_list, X_train, y_train, df1
+    return xgb_model, linear_model, feature_list, x_train, y_train, df1
 
-xgb_model, linear_model, model_features, X_train, y_train, df1 = load_models()
+xgb_model, linear_model, model_features, x_train, y_train, df1 = load_models()
 
 
 # Sidebar for inputs
@@ -238,7 +238,7 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
 # --------------------------
 st.subheader("📈 Model Prediction with Confidence Interval")
 
-X_train_const = sm.add_constant(X_train)
+X_train_const = sm.add_constant(x_train)
 ols_model = sm.OLS(y_train, X_train_const).fit()
 train_columns = X_train_const.columns
 
