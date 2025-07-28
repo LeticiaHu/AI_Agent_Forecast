@@ -266,7 +266,7 @@ if input_valid:
 else:
     st.warning("⚠️ Please fix input errors before generating predictions.")
 
-st.write("✅ Reached line 261")
+
 # Add the RSquared and evaluation metrics
 # --- Load saved metrics ---
 with open("model_metrics.json", "r") as f:
@@ -288,7 +288,8 @@ metrics_df = pd.DataFrame(data)
 for col in ["RMSE", "R2", "MAE"]:
     if col in metrics_df.columns:
         metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
-
+        
+st.write("✅ Reached line 291")
 # --- Display metrics table ---
 st.subheader("📊 Model Performance Comparison Table")
 st.dataframe(metrics_df.style.format({
