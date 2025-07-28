@@ -95,7 +95,6 @@ with col2:
 
 st.markdown("### 🚀 Real-time Business Forecast for Sales Demand")
 st.subheader("Use the sidebar to enter input values.")
-st.set_page_config(page_title="Sales Prediction Dashboard", layout="wide")
 st.title("📊 Sales Prediction RGBoost vs. Linear Regression")
 
 # Load models
