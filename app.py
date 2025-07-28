@@ -245,8 +245,8 @@ st.write("📌 x_train columns:", x_train.columns.tolist())
 # if x_train.isnull().values.any() or y_train.isnull().values.any():
 #     st.error("❌ NaNs detected in training data.")
 # else:
-#     X_train_const = sm.add_constant(x_train)
-#     ols_model = sm.OLS(y_train, X_train_const).fit()
+      X_train_const = sm.add_constant(x_train)
+      ols_model = sm.OLS(y_train, X_train_const).fit()
 #     train_columns = X_train_const.columns
 
 st.write("✅ Reached after fitting OLS model")
