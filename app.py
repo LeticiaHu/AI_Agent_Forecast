@@ -490,43 +490,43 @@ else:
 #     st.warning("⚠️ Please fix input errors before generating predictions.")
 
 # # Load and display model metrics
-# with open("model_metrics.json", "r") as f:
-#     metrics = json.load(f)
+with open("model_metrics.json", "r") as f:
+    metrics = json.load(f)
 
-# data = []
-# for model_name, splits in metrics.items():
-#     for split_name, metric_values in splits.items():
-#         row = {"Model": model_name, "Dataset": split_name}
-#         row.update(metric_values)
-#         data.append(row)
+data = []
+for model_name, splits in metrics.items():
+    for split_name, metric_values in splits.items():
+        row = {"Model": model_name, "Dataset": split_name}
+        row.update(metric_values)
+        data.append(row)
 
-# metrics_df = pd.DataFrame(data)
-# for col in ["RMSE", "R2", "MAE"]:
-#     metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
+metrics_df = pd.DataFrame(data)
+for col in ["RMSE", "R2", "MAE"]:
+    metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
 
-# # if x_train.isnull().values.any() or y_train.isnull().values.any():
-# #     st.error("❌ NaNs detected in training data.")
-# # else:
-# X_train_const = sm.add_constant(x_train)
-# ols_model = sm.OLS(y_train, X_train_const).fit()
-# train_columns = X_train_const.columns
-
-# st.write("✅ Reached after fitting OLS model")
-
-
-# model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
-# if input_valid:
-#     if model_choice == "Linear Regression":
-#         pred, lower, upper = predict_lr_with_ci(ols_model, input_data, train_columns)
-#         st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
-#         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-
-#     elif model_choice == "XGBoost":
-#         mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
-#         st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
-#         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+# if x_train.isnull().values.any() or y_train.isnull().values.any():
+#     st.error("❌ NaNs detected in training data.")
 # else:
-#     st.warning("⚠️ Please fix input errors before generating predictions.")
+X_train_const = sm.add_constant(x_train)
+ols_model = sm.OLS(y_train, X_train_const).fit()
+train_columns = X_train_const.columns
+
+st.write("✅ Reached after fitting OLS model")
+
+
+model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
+if input_valid:
+    if model_choice == "Linear Regression":
+        pred, lower, upper = predict_lr_with_ci(ols_model, input_data, train_columns)
+        st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
+        st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+
+    elif model_choice == "XGBoost":
+        mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
+        st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
+        st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+else:
+    st.warning("⚠️ Please fix input errors before generating predictions.")
 
 
 # Add the RSquared and evaluation metrics
