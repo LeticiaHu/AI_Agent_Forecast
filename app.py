@@ -107,7 +107,13 @@ def load_models():
     feature_list = joblib.load("model_features.pkl")
     x_train = pd.read_csv("X_train.csv.gz").astype(float)
     y_train = pd.read_csv("y_train.csv.gz").astype(float)
-    df1 = pd.read_csv("processed_sales_data.csv.gz").astype(float)
+    # df1 = pd.read_csv("processed_sales_data.csv.gz").astype(float)
+    df1 = pd.read_csv("processed_sales_data.csv.gz")
+
+# Convert only numeric columns
+for col in df1.select_dtypes(include=["int64", "float64", "bool"]).columns:
+    df1[col] = pd.to_numeric(df1[col], errors="coerce")
+
 
     return xgb_model, linear_model, feature_list, x_train, y_train, df1
 
@@ -491,7 +497,14 @@ with tab3:   # Stopped here
     st.subheader("Actual vs Predicted Sales Over Time")
 
     # Validate column presence
-    st.write("📌 df1 columns:", df1.columns.tolist())
+   try:
+    col_names = list(df1.columns)
+    st.text("📌 First 10 columns in df1:\n" + "\n".join(col_names[:10]))
+    st.text(f"Total columns: {len(col_names)}")
+except Exception as e:
+    st.error(f"❌ Failed to inspect df1 columns: {e}")
+    st.stop()
+
     st.write("📌 Expected features:", feature_list)
 
     missing = [col for col in feature_list if col not in df1.columns]
