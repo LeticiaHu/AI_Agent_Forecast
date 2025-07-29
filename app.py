@@ -486,10 +486,10 @@ with tab2:
                    labels={"onpromotion": "Items on Promotion", "sales": "Average Sales"})
     st.plotly_chart(fig2, use_container_width=True)
 
-with tab3:
+with tab3:   # Stopped here
     # Compare Predicted vs. Actual Sales
     st.subheader("Actual vs Predicted Sales Over Time")
-    X = df1[model_features]
+    X = df1[feature_list]
     y_actual = df1['sales']
 
     y_pred = xgb_model.predict(X)
