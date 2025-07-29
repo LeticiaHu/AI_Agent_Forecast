@@ -242,7 +242,6 @@ st.subheader("📈 Model Prediction with Confidence Interval")
 x_train = x_train.apply(pd.to_numeric, errors="raise")
 y_train = y_train.apply(pd.to_numeric, errors="raise")
 
-st.write("✅ Reached line 241")
 if x_train.isnull().values.any() or y_train.isnull().values.any():
     st.error("❌ NaNs detected in training data.")
     st.stop()
@@ -251,16 +250,41 @@ if len(x_train) != len(y_train):
     st.error("❌ Mismatch in number of rows between X and y.")
     st.stop()
 st.write("✅ Reached line 253")
-# Recast to ensure numerical types only
-x_train = x_train.apply(pd.to_numeric, errors="raise")
-y_train = y_train.apply(pd.to_numeric, errors="raise")
+
+# Safety checks
+if len(x_train) != len(y_train):
+    st.error(f"❌ Mismatch: x_train has {len(x_train)} rows, y_train has {len(y_train)} rows")
+    st.stop()
+
+# Ensure purely numeric
+try:
+    x_train = x_train.apply(pd.to_numeric, errors="raise")
+    y_train = y_train.apply(pd.to_numeric, errors="raise")
+except Exception as e:
+    st.error(f"❌ Non-numeric data found: {e}")
+    st.stop()
 
 X_train_const = sm.add_constant(x_train)
 
-X_train_const = sm.add_constant(x_train)
-ols_model = sm.OLS(y_train, X_train_const).fit()
-train_columns = X_train_const.columns
-st.write("✅ Reached line 257")
+# Check for inf or NaNs
+if not np.all(np.isfinite(X_train_const.values)):
+    st.error("❌ X_train_const contains non-finite values")
+    st.write(X_train_const)
+    st.stop()
+
+if not np.all(np.isfinite(y_train.values)):
+    st.error("❌ y_train contains non-finite values")
+    st.write(y_train)
+    st.stop()
+
+# Fit model
+try:
+    ols_model = sm.OLS(y_train, X_train_const).fit()
+    st.write("✅ Reached line 257")
+except Exception as e:
+    st.error(f"❌ Failed during OLS fitting: {e}")
+    st.stop()
+
 
 st.write("✅ Reached after fitting OLS model")
 
