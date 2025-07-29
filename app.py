@@ -250,6 +250,55 @@ if len(x_train) != len(y_train):
     st.error("❌ Mismatch in number of rows between X and y.")
     st.stop()
 st.write("✅ Reached line 253")
+import gc
+
+st.write("✅ Step 1: Checking shapes and types")
+
+st.write("x_train shape:", x_train.shape)
+st.write("y_train shape:", y_train.shape)
+st.write("x_train dtypes:", x_train.dtypes)
+st.write("y_train dtype:", y_train.dtype)
+
+# Re-add constant
+try:
+    X_train_const = sm.add_constant(x_train, has_constant='add')
+    st.write("✅ Step 2: Added constant column")
+except Exception as e:
+    st.error(f"❌ Failed to add constant: {e}")
+    st.stop()
+
+# Check for inf or NaN
+try:
+    if not np.all(np.isfinite(X_train_const.to_numpy())):
+        st.error("❌ X_train_const contains non-finite values.")
+        st.dataframe(X_train_const)
+        st.stop()
+
+    if not np.all(np.isfinite(y_train.to_numpy())):
+        st.error("❌ y_train contains non-finite values.")
+        st.dataframe(y_train)
+        st.stop()
+except Exception as e:
+    st.error(f"❌ Failed on isfinite check: {e}")
+    st.stop()
+
+# Final structure confirmation
+st.write("✅ Step 3: All data checks passed")
+st.write("📌 First few rows of X_train_const:")
+st.dataframe(X_train_const.head())
+st.write("📌 First few y_train values:", y_train.head().tolist())
+
+# Try model fitting with error capture
+try:
+    ols_model = sm.OLS(y_train, X_train_const).fit()
+    st.write("✅ Step 4: Model fitted successfully")
+except Exception as e:
+    st.error(f"❌ OLS.fit() crashed: {e}")
+    st.stop()
+
+# Ensure cleanup
+gc.collect()
+
 
 # Safety checks
 if len(x_train) != len(y_train):
