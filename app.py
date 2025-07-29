@@ -312,6 +312,43 @@ except Exception as e:
     st.error(f"❌ OLS fitting failed: {e}")
     st.stop()
 
+st.write("✅ Running deep sanity check...")
+
+# Check matching rows
+if len(X_train_const) != len(y_train):
+    st.error("❌ Mismatch in number of rows between X and y.")
+    st.stop()
+
+# Check for constant columns or all-zero columns
+zero_var_cols = X_train_const.columns[X_train_const.nunique() <= 1].tolist()
+if zero_var_cols:
+    st.warning(f"⚠️ Columns with no variance (constant): {zero_var_cols}")
+
+# Check for duplicates
+if X_train_const.columns.duplicated().any():
+    st.error("❌ Duplicate column names detected.")
+    st.write(X_train_const.columns[X_train_const.columns.duplicated()].tolist())
+    st.stop()
+
+# Check all values are finite
+if not np.all(np.isfinite(X_train_const.to_numpy())):
+    st.error("❌ Non-finite values found in X_train_const.")
+    st.stop()
+
+if not np.all(np.isfinite(y_train.to_numpy())):
+    st.error("❌ Non-finite values found in y_train.")
+    st.stop()
+
+# Force everything to standard float64
+try:
+    X_train_const = X_train_const.astype("float64")
+    y_train = y_train.astype("float64")
+except Exception as e:
+    st.error(f"❌ Failed to convert to float64: {e}")
+    st.stop()
+
+st.write("✅ Deep sanity check passed. Fitting model...")
+
 # Fit the model
 ols_model = sm.OLS(y_train, X_train_const).fit()
 st.write("✅ Reached after fitting OLS model")
