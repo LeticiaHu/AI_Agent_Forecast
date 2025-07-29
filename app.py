@@ -292,6 +292,17 @@ st.write("📌 First few rows of X_train_const:")
 st.dataframe(X_train_const.head())
 st.write("📌 First few y_train values:", y_train.head().tolist())
 
+# Convert y_train to Series if needed
+if isinstance(y_train, pd.DataFrame):
+    y_train = y_train.iloc[:, 0]
+    st.write("✅ Converted y_train to Series")
+
+st.write("✅ y_train is now:", type(y_train), "with dtype:", y_train.dtype)
+
+# Fit the model
+ols_model = sm.OLS(y_train, X_train_const).fit()
+st.write("✅ Reached after fitting OLS model")
+
 # Try model fitting with error capture
 try:
     ols_model = sm.OLS(y_train, X_train_const).fit()
