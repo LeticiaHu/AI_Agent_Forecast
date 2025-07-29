@@ -305,10 +305,20 @@ if isinstance(y_train, pd.DataFrame):
     st.write("✅ Converted y_train to Series")
 
 st.write("✅ y_train is now:", type(y_train), "with dtype:", y_train.dtype)
+try:
+    ols_model = sm.OLS(y_train, X_train_const).fit()
+    st.write("✅ OLS model fitted successfully")
+except Exception as e:
+    st.error(f"❌ OLS fitting failed: {e}")
+    st.stop()
 
 # Fit the model
 ols_model = sm.OLS(y_train, X_train_const).fit()
 st.write("✅ Reached after fitting OLS model")
+
+st.write("✅ Final check: X_train_const shape:", X_train_const.shape)
+st.write("✅ Final check: y_train shape:", y_train.shape)
+st.write("✅ Final check: X_train_const dtypes:", X_train_const.dtypes.to_dict())
 
 # Try model fitting with error capture
 try:
