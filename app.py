@@ -254,6 +254,7 @@ st.write("✅ Reached line 253")
 X_train_const = sm.add_constant(x_train)
 ols_model = sm.OLS(y_train, X_train_const).fit()
 train_columns = X_train_const.columns
+st.write("✅ Reached line 257")
 
 st.write("✅ Reached after fitting OLS model")
 
