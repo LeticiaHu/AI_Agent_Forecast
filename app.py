@@ -489,27 +489,71 @@ with tab2:
 with tab3:   # Stopped here
     # Compare Predicted vs. Actual Sales
     st.subheader("Actual vs Predicted Sales Over Time")
-    X = df1[feature_list]
-    y_actual = df1['sales']
 
-    y_pred = xgb_model.predict(X)
-    df1['predicted_sales'] = y_pred
-    df1['actual_sales'] = y_actual
+    # Validate column presence
+    st.write("📌 df1 columns:", df1.columns.tolist())
+    st.write("📌 Expected features:", feature_list)
 
-    df1['time_label'] = df1['year'].astype(str) + '-W' + df1['weekOfYear'].astype(str).str.zfill(2)
-    grouped = df1.groupby('time_label')[['actual_sales', 'predicted_sales']].mean().reset_index()
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=grouped['time_label'], y=grouped['actual_sales'],
-                             mode='lines+markers', name='Actual Sales'))
-    fig.add_trace(go.Scatter(x=grouped['time_label'], y=grouped['predicted_sales'],
-                             mode='lines+markers', name='Predicted Sales'))
+    missing = [col for col in feature_list if col not in df1.columns]
+    if missing:
+        st.error(f"❌ Missing features in df1: {missing}")
+        st.stop()
 
-    fig.update_layout(title='Actual vs Predicted Sales Over Time',
-                      xaxis_title='Year-Week',
-                      yaxis_title='Sales',
-                      template='plotly_white')
+    if 'sales' not in df1.columns:
+        st.error("❌ 'sales' column not found in df1.")
+        st.stop()
 
-    st.plotly_chart(fig, use_container_width=True)
+    # Safe prediction
+    try:
+        X = df1[feature_list]
+        y_actual = df1['sales']
+        y_pred = xgb_model.predict(X)
+
+        df1['predicted_sales'] = y_pred
+        df1['actual_sales'] = y_actual
+
+        df1['time_label'] = df1['year'].astype(str) + '-W' + df1['weekOfYear'].astype(str).str.zfill(2)
+
+        grouped = df1.groupby('time_label')[['actual_sales', 'predicted_sales']].mean().reset_index()
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=grouped['time_label'], y=grouped['actual_sales'],
+                                 mode='lines+markers', name='Actual Sales'))
+        fig.add_trace(go.Scatter(x=grouped['time_label'], y=grouped['predicted_sales'],
+                                 mode='lines+markers', name='Predicted Sales'))
+
+        fig.update_layout(title='Actual vs Predicted Sales Over Time',
+                          xaxis_title='Year-Week',
+                          yaxis_title='Sales',
+                          template='plotly_white')
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    except Exception as e:
+        st.error(f"❌ Prediction or plotting failed: {e}")
+
+    # st.subheader("Actual vs Predicted Sales Over Time")
+    # X = df1[feature_list]
+    # y_actual = df1['sales']
+
+    # y_pred = xgb_model.predict(X)
+    # df1['predicted_sales'] = y_pred
+    # df1['actual_sales'] = y_actual
+
+    # df1['time_label'] = df1['year'].astype(str) + '-W' + df1['weekOfYear'].astype(str).str.zfill(2)
+    # grouped = df1.groupby('time_label')[['actual_sales', 'predicted_sales']].mean().reset_index()
+    # fig = go.Figure()
+    # fig.add_trace(go.Scatter(x=grouped['time_label'], y=grouped['actual_sales'],
+    #                          mode='lines+markers', name='Actual Sales'))
+    # fig.add_trace(go.Scatter(x=grouped['time_label'], y=grouped['predicted_sales'],
+    #                          mode='lines+markers', name='Predicted Sales'))
+
+    # fig.update_layout(title='Actual vs Predicted Sales Over Time',
+    #                   xaxis_title='Year-Week',
+    #                   yaxis_title='Sales',
+    #                   template='plotly_white')
+
+    # st.plotly_chart(fig, use_container_width=True)
 
 
 with tab4:
