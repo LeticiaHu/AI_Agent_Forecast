@@ -247,6 +247,10 @@ if x_train.isnull().values.any() or y_train.isnull().values.any():
     st.error("❌ NaNs detected in training data.")
     st.stop()
 
+if len(x_train) != len(y_train):
+    st.error("❌ Mismatch in number of rows between X and y.")
+    st.stop()
+st.write("✅ Reached line 253")
 X_train_const = sm.add_constant(x_train)
 ols_model = sm.OLS(y_train, X_train_const).fit()
 train_columns = X_train_const.columns
