@@ -251,6 +251,12 @@ if len(x_train) != len(y_train):
     st.error("❌ Mismatch in number of rows between X and y.")
     st.stop()
 st.write("✅ Reached line 253")
+# Recast to ensure numerical types only
+x_train = x_train.apply(pd.to_numeric, errors="raise")
+y_train = y_train.apply(pd.to_numeric, errors="raise")
+
+X_train_const = sm.add_constant(x_train)
+
 X_train_const = sm.add_constant(x_train)
 ols_model = sm.OLS(y_train, X_train_const).fit()
 train_columns = X_train_const.columns
