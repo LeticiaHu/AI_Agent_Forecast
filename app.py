@@ -238,6 +238,10 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
 # Prediction Based on Selected Model
 # --------------------------
 st.subheader("📈 Model Prediction with Confidence Interval")
+
+x_train = x_train.apply(pd.to_numeric, errors="raise")
+y_train = y_train.apply(pd.to_numeric, errors="raise")
+
 st.write("✅ Reached line 241")
 if x_train.isnull().values.any() or y_train.isnull().values.any():
     st.error("❌ NaNs detected in training data.")
