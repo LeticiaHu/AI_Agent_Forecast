@@ -257,7 +257,11 @@ st.write("✅ Step 1: Checking shapes and types")
 st.write("x_train shape:", x_train.shape)
 st.write("y_train shape:", y_train.shape)
 st.write("x_train dtypes:", x_train.dtypes)
+
+if isinstance(y_train, pd.DataFrame):
+    y_train = y_train.iloc[:, 0]  # Ensure Series
 st.write("y_train dtype:", y_train.dtype)
+
 
 # Re-add constant
 try:
