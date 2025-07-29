@@ -529,27 +529,27 @@ else:
 #     st.warning("⚠️ Please fix input errors before generating predictions.")
 
 
-# # Add the RSquared and evaluation metrics
-# # --- Load saved metrics ---
-# with open("model_metrics.json", "r") as f:
-#     metrics = json.load(f)
+# Add the RSquared and evaluation metrics
+# --- Load saved metrics ---
+with open("model_metrics.json", "r") as f:
+    metrics = json.load(f)
 
-# # --- Convert nested dict to DataFrame ---
-# data = []
-# for model_name, splits in metrics.items():
-#     for split_name, metric_values in splits.items():
-#         row = {
-#             "Model": model_name,
-#             "Dataset": split_name
-#         }
-#         row.update(metric_values)
-#         data.append(row)
-# metrics_df = pd.DataFrame(data)
+# --- Convert nested dict to DataFrame ---
+data = []
+for model_name, splits in metrics.items():
+    for split_name, metric_values in splits.items():
+        row = {
+            "Model": model_name,
+            "Dataset": split_name
+        }
+        row.update(metric_values)
+        data.append(row)
+metrics_df = pd.DataFrame(data)
 
-# # --- Ensure all metric columns are numeric ---
-# for col in ["RMSE", "R2", "MAE"]:
-#     if col in metrics_df.columns:
-#         metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
+# --- Ensure all metric columns are numeric ---
+for col in ["RMSE", "R2", "MAE"]:
+    if col in metrics_df.columns:
+        metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
         
 st.write("✅ Reached line 291")
 # --- Display metrics table ---
