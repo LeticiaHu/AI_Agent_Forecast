@@ -289,6 +289,13 @@ except Exception as e:
 # Final structure confirmation
 st.write("✅ Step 3: All data checks passed")
 st.write("📌 First few rows of X_train_const:")
+safe_to_display = X_train_const.astype("float64", errors="ignore").copy()
+st.dataframe(safe_to_display.head())
+st.write("📌 Showing column names only (avoiding Arrow crash)")
+st.write(X_train_const.columns.tolist())
+st.write("📌 Data types:")
+st.write(X_train_const.dtypes)
+
 st.dataframe(X_train_const.head())
 st.write("📌 First few y_train values:", y_train.head().tolist())
 
