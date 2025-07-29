@@ -394,6 +394,35 @@ if not np.all(np.isfinite(y_train.values)):
     st.error("❌ y_train contains non-finite values")
     st.write(y_train)
     st.stop()
+# Drop duplicate columns
+X_train_const = X_train_const.loc[:, ~X_train_const.columns.duplicated()]
+
+# Drop constant columns (including the constant added by sm)
+X_train_const = X_train_const.loc[:, X_train_const.nunique() > 1]
+
+st.write("📌 First few rows of X_train_const:")
+st.write(X_train_const.head().to_string())
+
+# Final preparation
+try:
+    # Drop bad columns
+    X_train_const = X_train_const.loc[:, ~X_train_const.columns.duplicated()]
+    X_train_const = X_train_const.loc[:, X_train_const.nunique() > 1]
+
+    # Ensure correct types
+    X_train_const = X_train_const.astype("float64")
+    if isinstance(y_train, pd.DataFrame):
+        y_train = y_train.iloc[:, 0]
+    y_train = y_train.astype("float64")
+
+    # Fit model
+    st.write("✅ Fitting OLS model now...")
+    ols_model = sm.OLS(y_train, X_train_const).fit()
+    st.write("✅ Model fitted successfully")
+
+except Exception as e:
+    st.error(f"❌ Fitting crashed: {e}")
+    st.stop()
 
 # Fit model
 try:
