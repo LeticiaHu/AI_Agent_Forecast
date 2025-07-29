@@ -234,239 +234,275 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
     upper = np.percentile(preds, 97.5)
     return mean_pred, lower, upper
 
+
 # --------------------------
-# Prediction Based on Selected Model
+# Prediction Based on XGBoost
 # --------------------------
-st.subheader("📈 Model Prediction with Confidence Interval")
+st.subheader("📈 Sales Prediction (XGBoost Only)")
 
-x_train = x_train.apply(pd.to_numeric, errors="raise")
-y_train = y_train.apply(pd.to_numeric, errors="raise")
-
-if x_train.isnull().values.any() or y_train.isnull().values.any():
-    st.error("❌ NaNs detected in training data.")
-    st.stop()
-
-if len(x_train) != len(y_train):
-    st.error("❌ Mismatch in number of rows between X and y.")
-    st.stop()
-st.write("✅ Reached line 253")
-import gc
-
-st.write("✅ Step 1: Checking shapes and types")
-
-st.write("x_train shape:", x_train.shape)
-st.write("y_train shape:", y_train.shape)
-st.write("x_train dtypes:", x_train.dtypes)
-
-if isinstance(y_train, pd.DataFrame):
-    y_train = y_train.iloc[:, 0]  # Ensure Series
-st.write("y_train dtype:", y_train.dtype)
-
-
-# Re-add constant
-try:
-    X_train_const = sm.add_constant(x_train, has_constant='add')
-    st.write("✅ Step 2: Added constant column")
-except Exception as e:
-    st.error(f"❌ Failed to add constant: {e}")
-    st.stop()
-
-# Check for inf or NaN
-try:
-    if not np.all(np.isfinite(X_train_const.to_numpy())):
-        st.error("❌ X_train_const contains non-finite values.")
-        st.dataframe(X_train_const)
+# Validate input data
+if input_data is None or input_data.isnull().any().any():
+    st.warning("⚠️ Please fix input errors before generating predictions.")
+else:
+    # Ensure numeric input
+    try:
+        input_data = input_data.astype("float64")
+    except Exception as e:
+        st.error(f"❌ Input data conversion failed: {e}")
         st.stop()
 
-    if not np.all(np.isfinite(y_train.to_numpy())):
-        st.error("❌ y_train contains non-finite values.")
-        st.dataframe(y_train)
-        st.stop()
-except Exception as e:
-    st.error(f"❌ Failed on isfinite check: {e}")
-    st.stop()
-
-# Final structure confirmation
-st.write("✅ Step 3: All data checks passed")
-st.write("📌 First few rows of X_train_const:")
-safe_to_display = X_train_const.astype("float64", errors="ignore").copy()
-st.dataframe(safe_to_display.head())
-st.write("📌 Showing column names only (avoiding Arrow crash)")
-st.write(X_train_const.columns.tolist())
-st.write("📌 Data types:")
-st.write(X_train_const.dtypes)
-
-st.dataframe(X_train_const.head())
-st.write("📌 First few y_train values:", y_train.head().tolist())
-
-# Convert y_train to Series if needed
-if isinstance(y_train, pd.DataFrame):
-    y_train = y_train.iloc[:, 0]
-    st.write("✅ Converted y_train to Series")
-
-st.write("✅ y_train is now:", type(y_train), "with dtype:", y_train.dtype)
-try:
-    ols_model = sm.OLS(y_train, X_train_const).fit()
-    st.write("✅ OLS model fitted successfully")
-except Exception as e:
-    st.error(f"❌ OLS fitting failed: {e}")
-    st.stop()
-
-st.write("✅ Running deep sanity check...")
-
-# Check matching rows
-if len(X_train_const) != len(y_train):
-    st.error("❌ Mismatch in number of rows between X and y.")
-    st.stop()
-
-# Check for constant columns or all-zero columns
-zero_var_cols = X_train_const.columns[X_train_const.nunique() <= 1].tolist()
-if zero_var_cols:
-    st.warning(f"⚠️ Columns with no variance (constant): {zero_var_cols}")
-
-# Check for duplicates
-if X_train_const.columns.duplicated().any():
-    st.error("❌ Duplicate column names detected.")
-    st.write(X_train_const.columns[X_train_const.columns.duplicated()].tolist())
-    st.stop()
-
-# Check all values are finite
-if not np.all(np.isfinite(X_train_const.to_numpy())):
-    st.error("❌ Non-finite values found in X_train_const.")
-    st.stop()
-
-if not np.all(np.isfinite(y_train.to_numpy())):
-    st.error("❌ Non-finite values found in y_train.")
-    st.stop()
-
-# Force everything to standard float64
-try:
-    X_train_const = X_train_const.astype("float64")
-    y_train = y_train.astype("float64")
-except Exception as e:
-    st.error(f"❌ Failed to convert to float64: {e}")
-    st.stop()
-
-st.write("✅ Deep sanity check passed. Fitting model...")
-
-# Fit the model
-ols_model = sm.OLS(y_train, X_train_const).fit()
-st.write("✅ Reached after fitting OLS model")
-
-st.write("✅ Final check: X_train_const shape:", X_train_const.shape)
-st.write("✅ Final check: y_train shape:", y_train.shape)
-st.write("✅ Final check: X_train_const dtypes:", X_train_const.dtypes.to_dict())
-
-# Try model fitting with error capture
-try:
-    ols_model = sm.OLS(y_train, X_train_const).fit()
-    st.write("✅ Step 4: Model fitted successfully")
-except Exception as e:
-    st.error(f"❌ OLS.fit() crashed: {e}")
-    st.stop()
-
-# Ensure cleanup
-gc.collect()
-
-
-# Safety checks
-if len(x_train) != len(y_train):
-    st.error(f"❌ Mismatch: x_train has {len(x_train)} rows, y_train has {len(y_train)} rows")
-    st.stop()
-
-# Ensure purely numeric
-try:
-    x_train = x_train.apply(pd.to_numeric, errors="raise")
-    y_train = y_train.apply(pd.to_numeric, errors="raise")
-except Exception as e:
-    st.error(f"❌ Non-numeric data found: {e}")
-    st.stop()
-
-X_train_const = sm.add_constant(x_train)
-
-# Check for inf or NaNs
-if not np.all(np.isfinite(X_train_const.values)):
-    st.error("❌ X_train_const contains non-finite values")
-    st.write(X_train_const)
-    st.stop()
-
-if not np.all(np.isfinite(y_train.values)):
-    st.error("❌ y_train contains non-finite values")
-    st.write(y_train)
-    st.stop()
-# Drop duplicate columns
-X_train_const = X_train_const.loc[:, ~X_train_const.columns.duplicated()]
-
-# Drop constant columns (including the constant added by sm)
-X_train_const = X_train_const.loc[:, X_train_const.nunique() > 1]
-
-st.write("📌 First few rows of X_train_const:")
-st.write(X_train_const.head().to_string())
-
-# Final preparation
-try:
-    # Drop bad columns
-    X_train_const = X_train_const.loc[:, ~X_train_const.columns.duplicated()]
-    X_train_const = X_train_const.loc[:, X_train_const.nunique() > 1]
-
-    # Ensure correct types
-    X_train_const = X_train_const.astype("float64")
-    if isinstance(y_train, pd.DataFrame):
-        y_train = y_train.iloc[:, 0]
-    y_train = y_train.astype("float64")
-
-    # Fit model
-    st.write("✅ Fitting OLS model now...")
-    ols_model = sm.OLS(y_train, X_train_const).fit()
-    st.write("✅ Model fitted successfully")
-
-except Exception as e:
-    st.error(f"❌ Fitting crashed: {e}")
-    st.stop()
-
-# Fit model
-try:
-    ols_model = sm.OLS(y_train, X_train_const).fit()
-    st.write("✅ Reached line 257")
-except Exception as e:
-    st.error(f"❌ Failed during OLS fitting: {e}")
-    st.stop()
-
-
-st.write("✅ Reached after fitting OLS model")
-
-# Define or load input data and validate
-# Example: input_data = pd.DataFrame([user_inputs])
-input_valid = input_data is not None and not input_data.isnull().any().any()
-
-model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
-
-if input_valid:
-    if model_choice == "Linear Regression":
-        pred, lower, upper = predict_lr_with_ci(ols_model, input_data, train_columns)
-        st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
-        st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-    elif model_choice == "XGBoost":
+    # Run XGBoost prediction with confidence interval
+    try:
         mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
         st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-else:
-    st.warning("⚠️ Please fix input errors before generating predictions.")
+    except Exception as e:
+        st.error(f"❌ Prediction failed: {e}")
 
-# Load and display model metrics
-with open("model_metrics.json", "r") as f:
-    metrics = json.load(f)
+# def bootstrap_prediction(model, X_input, n_iterations=100):
+#     preds = []
+#     for _ in range(n_iterations):
+#         pred = model.predict(X_input)[0]
+#         preds.append(pred)
+#     preds = np.array(preds)
+#     mean_pred = np.mean(preds)
+#     lower = np.percentile(preds, 2.5)
+#     upper = np.percentile(preds, 97.5)
+#     return mean_pred, lower, upper
 
-data = []
-for model_name, splits in metrics.items():
-    for split_name, metric_values in splits.items():
-        row = {"Model": model_name, "Dataset": split_name}
-        row.update(metric_values)
-        data.append(row)
+# # --------------------------
+# # Prediction Based on Selected Model
+# # --------------------------
+# st.subheader("📈 Model Prediction with Confidence Interval")
 
-metrics_df = pd.DataFrame(data)
-for col in ["RMSE", "R2", "MAE"]:
-    metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
+# x_train = x_train.apply(pd.to_numeric, errors="raise")
+# y_train = y_train.apply(pd.to_numeric, errors="raise")
+
+# if x_train.isnull().values.any() or y_train.isnull().values.any():
+#     st.error("❌ NaNs detected in training data.")
+#     st.stop()
+
+# if len(x_train) != len(y_train):
+#     st.error("❌ Mismatch in number of rows between X and y.")
+#     st.stop()
+# st.write("✅ Reached line 253")
+# import gc
+
+# st.write("✅ Step 1: Checking shapes and types")
+
+# st.write("x_train shape:", x_train.shape)
+# st.write("y_train shape:", y_train.shape)
+# st.write("x_train dtypes:", x_train.dtypes)
+
+# if isinstance(y_train, pd.DataFrame):
+#     y_train = y_train.iloc[:, 0]  # Ensure Series
+# st.write("y_train dtype:", y_train.dtype)
+
+
+# # Re-add constant
+# try:
+#     X_train_const = sm.add_constant(x_train, has_constant='add')
+#     st.write("✅ Step 2: Added constant column")
+# except Exception as e:
+#     st.error(f"❌ Failed to add constant: {e}")
+#     st.stop()
+
+# # Check for inf or NaN
+# try:
+#     if not np.all(np.isfinite(X_train_const.to_numpy())):
+#         st.error("❌ X_train_const contains non-finite values.")
+#         st.dataframe(X_train_const)
+#         st.stop()
+
+#     if not np.all(np.isfinite(y_train.to_numpy())):
+#         st.error("❌ y_train contains non-finite values.")
+#         st.dataframe(y_train)
+#         st.stop()
+# except Exception as e:
+#     st.error(f"❌ Failed on isfinite check: {e}")
+#     st.stop()
+
+# # Final structure confirmation
+# st.write("✅ Step 3: All data checks passed")
+# st.write("📌 First few rows of X_train_const:")
+# safe_to_display = X_train_const.astype("float64", errors="ignore").copy()
+# st.dataframe(safe_to_display.head())
+# st.write("📌 Showing column names only (avoiding Arrow crash)")
+# st.write(X_train_const.columns.tolist())
+# st.write("📌 Data types:")
+# st.write(X_train_const.dtypes)
+
+# st.dataframe(X_train_const.head())
+# st.write("📌 First few y_train values:", y_train.head().tolist())
+
+# # Convert y_train to Series if needed
+# if isinstance(y_train, pd.DataFrame):
+#     y_train = y_train.iloc[:, 0]
+#     st.write("✅ Converted y_train to Series")
+
+# st.write("✅ y_train is now:", type(y_train), "with dtype:", y_train.dtype)
+# try:
+#     ols_model = sm.OLS(y_train, X_train_const).fit()
+#     st.write("✅ OLS model fitted successfully")
+# except Exception as e:
+#     st.error(f"❌ OLS fitting failed: {e}")
+#     st.stop()
+
+# st.write("✅ Running deep sanity check...")
+
+# # Check matching rows
+# if len(X_train_const) != len(y_train):
+#     st.error("❌ Mismatch in number of rows between X and y.")
+#     st.stop()
+
+# # Check for constant columns or all-zero columns
+# zero_var_cols = X_train_const.columns[X_train_const.nunique() <= 1].tolist()
+# if zero_var_cols:
+#     st.warning(f"⚠️ Columns with no variance (constant): {zero_var_cols}")
+
+# # Check for duplicates
+# if X_train_const.columns.duplicated().any():
+#     st.error("❌ Duplicate column names detected.")
+#     st.write(X_train_const.columns[X_train_const.columns.duplicated()].tolist())
+#     st.stop()
+
+# # Check all values are finite
+# if not np.all(np.isfinite(X_train_const.to_numpy())):
+#     st.error("❌ Non-finite values found in X_train_const.")
+#     st.stop()
+
+# if not np.all(np.isfinite(y_train.to_numpy())):
+#     st.error("❌ Non-finite values found in y_train.")
+#     st.stop()
+
+# # Force everything to standard float64
+# try:
+#     X_train_const = X_train_const.astype("float64")
+#     y_train = y_train.astype("float64")
+# except Exception as e:
+#     st.error(f"❌ Failed to convert to float64: {e}")
+#     st.stop()
+
+# st.write("✅ Deep sanity check passed. Fitting model...")
+
+# # Fit the model
+# ols_model = sm.OLS(y_train, X_train_const).fit()
+# st.write("✅ Reached after fitting OLS model")
+
+# st.write("✅ Final check: X_train_const shape:", X_train_const.shape)
+# st.write("✅ Final check: y_train shape:", y_train.shape)
+# st.write("✅ Final check: X_train_const dtypes:", X_train_const.dtypes.to_dict())
+
+# # Try model fitting with error capture
+# try:
+#     ols_model = sm.OLS(y_train, X_train_const).fit()
+#     st.write("✅ Step 4: Model fitted successfully")
+# except Exception as e:
+#     st.error(f"❌ OLS.fit() crashed: {e}")
+#     st.stop()
+
+# # Ensure cleanup
+# gc.collect()
+
+
+# # Safety checks
+# if len(x_train) != len(y_train):
+#     st.error(f"❌ Mismatch: x_train has {len(x_train)} rows, y_train has {len(y_train)} rows")
+#     st.stop()
+
+# # Ensure purely numeric
+# try:
+#     x_train = x_train.apply(pd.to_numeric, errors="raise")
+#     y_train = y_train.apply(pd.to_numeric, errors="raise")
+# except Exception as e:
+#     st.error(f"❌ Non-numeric data found: {e}")
+#     st.stop()
+
+# X_train_const = sm.add_constant(x_train)
+
+# # Check for inf or NaNs
+# if not np.all(np.isfinite(X_train_const.values)):
+#     st.error("❌ X_train_const contains non-finite values")
+#     st.write(X_train_const)
+#     st.stop()
+
+# if not np.all(np.isfinite(y_train.values)):
+#     st.error("❌ y_train contains non-finite values")
+#     st.write(y_train)
+#     st.stop()
+# # Drop duplicate columns
+# X_train_const = X_train_const.loc[:, ~X_train_const.columns.duplicated()]
+
+# # Drop constant columns (including the constant added by sm)
+# X_train_const = X_train_const.loc[:, X_train_const.nunique() > 1]
+
+# st.write("📌 First few rows of X_train_const:")
+# st.write(X_train_const.head().to_string())
+
+# # Final preparation
+# try:
+#     # Drop bad columns
+#     X_train_const = X_train_const.loc[:, ~X_train_const.columns.duplicated()]
+#     X_train_const = X_train_const.loc[:, X_train_const.nunique() > 1]
+
+#     # Ensure correct types
+#     X_train_const = X_train_const.astype("float64")
+#     if isinstance(y_train, pd.DataFrame):
+#         y_train = y_train.iloc[:, 0]
+#     y_train = y_train.astype("float64")
+
+#     # Fit model
+#     st.write("✅ Fitting OLS model now...")
+#     ols_model = sm.OLS(y_train, X_train_const).fit()
+#     st.write("✅ Model fitted successfully")
+
+# except Exception as e:
+#     st.error(f"❌ Fitting crashed: {e}")
+#     st.stop()
+
+# # Fit model
+# try:
+#     ols_model = sm.OLS(y_train, X_train_const).fit()
+#     st.write("✅ Reached line 257")
+# except Exception as e:
+#     st.error(f"❌ Failed during OLS fitting: {e}")
+#     st.stop()
+
+
+# st.write("✅ Reached after fitting OLS model")
+
+# # Define or load input data and validate
+# # Example: input_data = pd.DataFrame([user_inputs])
+# input_valid = input_data is not None and not input_data.isnull().any().any()
+
+# model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
+
+# if input_valid:
+#     if model_choice == "Linear Regression":
+#         pred, lower, upper = predict_lr_with_ci(ols_model, input_data, train_columns)
+#         st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
+#         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+#     elif model_choice == "XGBoost":
+#         mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
+#         st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
+#         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+# else:
+#     st.warning("⚠️ Please fix input errors before generating predictions.")
+
+# # Load and display model metrics
+# with open("model_metrics.json", "r") as f:
+#     metrics = json.load(f)
+
+# data = []
+# for model_name, splits in metrics.items():
+#     for split_name, metric_values in splits.items():
+#         row = {"Model": model_name, "Dataset": split_name}
+#         row.update(metric_values)
+#         data.append(row)
+
+# metrics_df = pd.DataFrame(data)
+# for col in ["RMSE", "R2", "MAE"]:
+#     metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
 
 # # if x_train.isnull().values.any() or y_train.isnull().values.any():
 # #     st.error("❌ NaNs detected in training data.")
