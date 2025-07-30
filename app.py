@@ -116,7 +116,7 @@ st.sidebar.header("Input Features")
 st.sidebar.markdown("---")
 
 # Group all inputs inside an expander for better mobile layout
-with st.sidebar.expander("🔧Adjust Prediction Inputs", expanded=True):
+with st.sidebar.expander("🔧 Adjust Prediction Inputs", expanded=True):
 
     transactions = st.number_input(
         "Transactions", min_value=0.0, value=100.0,
@@ -170,11 +170,10 @@ if onpromotion > 500 and transactions < 50:
 
 
 # --- Build Input Data ---
-# Step 1: Initialize all features to 0
-input_dict = {col: 0 for col in feature_list}
+input_dict = {col: 0 for col in feature_list}  # default all to 0
 
-# Step 2: Safely add numeric features
-numeric_inputs = {
+# Add numeric inputs
+input_dict.update({
     "id": 0,
     "store_nbr": store_nbr,
     "onpromotion": onpromotion,
@@ -185,34 +184,120 @@ numeric_inputs = {
     "weekOfYear": weekOfYear,
     "quarter": quarter,
     "day": day
-}
-for key, value in numeric_inputs.items():
-    if key in input_dict:
-        input_dict[key] = value
-    else:
-        st.warning(f"⚠️ Feature '{key}' not found in model feature list.")
+})
 
-# Step 3: One-hot inputs (only if present in model)
-for cat_feature in [season, state, weekpart, city, holiday, family]:
-    if cat_feature in input_dict:
-        input_dict[cat_feature] = 1
-    else:
-        st.warning(f"⚠️ One-hot feature '{cat_feature}' missing from feature_list.")
+# One-hot encodings
+input_dict[season] = 1
+input_dict[state] = 1
+input_dict[weekpart] = 1
+input_dict[city] = 1
+input_dict[holiday] = 1
+input_dict[family] = 1
 
-# Step 4: Show missing values before prediction
-missing_for_model = [col for col in feature_list if col not in input_dict]
-if missing_for_model:
-    st.error(f"❌ Can't create input: Missing {missing_for_model}")
-    st.stop()
+# Create DataFrame in correct feature order
+input_data = pd.DataFrame([input_dict])[feature_list]
+# # Sidebar for inputs
+# st.sidebar.header("Input Features")
+# st.sidebar.markdown("---")
 
-# Step 5: Build input safely
-try:
-    input_data = pd.DataFrame([input_dict])[feature_list]
-except Exception as e:
-    st.error(f"❌ Failed to build input_data: {e}")
-    st.stop()
-st.write("✅ input_dict keys:", list(input_dict.keys())[:10])
-st.write("✅ feature_list sample:", feature_list[:10])
+# # Group all inputs inside an expander for better mobile layout
+# with st.sidebar.expander("🔧Adjust Prediction Inputs", expanded=True):
+
+#     transactions = st.number_input(
+#         "Transactions", min_value=0.0, value=100.0,
+#         help="Estimated number of transactions (must be ≥ 0), key='input_transactions'")
+
+#     onpromotion = st.number_input("Items on Promotion", min_value=0, max_value=1000, value=15,
+#                                   help="Number of items currently on promotion (0–1000), key='input_promo'")
+
+#     dcoilwtico = st.number_input("Oil Price", value=50.0,
+#                                  help="US Dollar oil price benchmark, must be > 0, key='input_oil'")
+
+#     store_nbr = st.number_input("Store Number", min_value=1, max_value=100, value=5,
+#                                 help="Store identifier (1–100), key='input_store'")
+
+#     month = st.slider("Month", 1, 12, 7, key="slider_month")
+#     weekOfYear = st.slider("Week of Year", 1, 52, 28, key="slider_week")
+#     quarter = st.slider("Quarter", 1, 4, 3, key="slider_quarter")
+#     day = st.slider("Day", 1, 31, 15, key="slider_day")
+#     year = st.selectbox("Year", [2022, 2023, 2024, 2025, 2026, 2027, 2028])
+#     state = st.selectbox("State", ["state_Pichincha", "state_Guayas", "state_Manabi"])
+#     season = st.selectbox("Season", ["MonthSeason_Summer", "MonthSeason_Winter", "MonthSeason_Spring"])
+#     weekpart = st.selectbox("Week Part", ["WeekPart_MidWeek", "WeekPart_Weekend"])
+#     city = st.selectbox("City", [
+#         "city_grouped_Cayambe", "city_grouped_Cuenca", "city_grouped_Guayaquil",
+#         "city_grouped_Latacunga", "city_grouped_Machala", "city_grouped_Manta",
+#         "city_grouped_Other", "city_grouped_Quito", "city_grouped_Riobamba",
+#         "city_grouped_Santo Domingo"
+#     ])
+#     holiday = st.selectbox("Holiday Type", [
+#         "holiday_type_Bridge", "holiday_type_Event", "holiday_type_Holiday",
+#         "holiday_type_NotHoliday", "holiday_type_Transfer", "holiday_type_Work Day"
+#     ])
+#     family = st.selectbox("Family Type", [
+#         "family_grouped_Beverages", "family_grouped_Food",
+#         "family_grouped_Home", "family_grouped_Other", "family_grouped_personal"
+#     ])
+
+# # Validation checks (outside the expander to always show warnings/errors)
+# input_valid = True
+
+# if dcoilwtico <= 0:
+#     st.sidebar.error("❌ Oil price must be greater than 0.")
+#     input_valid = False
+
+# if transactions < 0:
+#     st.sidebar.error("❌ Transactions cannot be negative.")
+#     input_valid = False
+
+# if onpromotion > 500 and transactions < 50:
+#     st.sidebar.warning("⚠️ High promotions with very low transactions may be an outlier.")
+
+
+# # --- Build Input Data ---
+# # Step 1: Initialize all features to 0
+# input_dict = {col: 0 for col in feature_list}
+
+# # Step 2: Safely add numeric features
+# numeric_inputs = {
+#     "id": 0,
+#     "store_nbr": store_nbr,
+#     "onpromotion": onpromotion,
+#     "dcoilwtico": dcoilwtico,
+#     "transactions": transactions,
+#     "month": month,
+#     "year": year,
+#     "weekOfYear": weekOfYear,
+#     "quarter": quarter,
+#     "day": day
+# }
+# for key, value in numeric_inputs.items():
+#     if key in input_dict:
+#         input_dict[key] = value
+#     else:
+#         st.warning(f"⚠️ Feature '{key}' not found in model feature list.")
+
+# # Step 3: One-hot inputs (only if present in model)
+# for cat_feature in [season, state, weekpart, city, holiday, family]:
+#     if cat_feature in input_dict:
+#         input_dict[cat_feature] = 1
+#     else:
+#         st.warning(f"⚠️ One-hot feature '{cat_feature}' missing from feature_list.")
+
+# # Step 4: Show missing values before prediction
+# missing_for_model = [col for col in feature_list if col not in input_dict]
+# if missing_for_model:
+#     st.error(f"❌ Can't create input: Missing {missing_for_model}")
+#     st.stop()
+
+# # Step 5: Build input safely
+# try:
+#     input_data = pd.DataFrame([input_dict])[feature_list]
+# except Exception as e:
+#     st.error(f"❌ Failed to build input_data: {e}")
+#     st.stop()
+# st.write("✅ input_dict keys:", list(input_dict.keys())[:10])
+# st.write("✅ feature_list sample:", feature_list[:10])
 
 # input_dict = {col: 0 for col in feature_list}  # default all to 0
 
@@ -238,7 +323,7 @@ st.write("✅ feature_list sample:", feature_list[:10])
 # input_dict[holiday] = 1
 # input_dict[family] = 1
 # Default all features to 0
-input_dict = {col: 0 for col in feature_list}
+# input_dict = {col: 0 for col in feature_list}
 
 # Numeric features
 # input_dict.update({
@@ -267,7 +352,7 @@ input_dict = {col: 0 for col in feature_list}
 #     st.stop()
 
 # Create DataFrame in correct feature order
-input_data = pd.DataFrame([input_dict])[feature_list]
+# input_data = pd.DataFrame([input_dict])[feature_list]
 
 # Simulate prediction uncertainty using bootstrapping
 # --------------------------
