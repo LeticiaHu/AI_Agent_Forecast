@@ -98,7 +98,6 @@ st.subheader("Use the sidebar to enter input values.")
 st.title("📊 Sales Prediction RGBoost vs. Linear Regression")
 
 # Load models
-
 @st.cache_resource
 def load_models():
     xgb_model = xgb.XGBRegressor()
@@ -107,15 +106,16 @@ def load_models():
     feature_list = joblib.load("model_features.pkl")
     x_train = pd.read_csv("X_train.csv.gz").astype(float)
     y_train = pd.read_csv("y_train.csv.gz").astype(float)
-    # df1 = pd.read_csv("processed_sales_data.csv.gz").astype(float)
     df1 = pd.read_csv("processed_sales_data.csv.gz")
 
-# Convert only numeric columns
-for col in df1.select_dtypes(include=["int64", "float64", "bool"]).columns:
-    df1[col] = pd.to_numeric(df1[col], errors="coerce")
+    # Convert only numeric columns
+    for col in df1.select_dtypes(include=["int64", "float64", "bool"]).columns:
+        df1[col] = pd.to_numeric(df1[col], errors="coerce")
+
     return xgb_model, linear_model, feature_list, x_train, y_train, df1
 
 xgb_model, linear_model, feature_list, x_train, y_train, df1 = load_models()
+
 
 
 # Sidebar for inputs
