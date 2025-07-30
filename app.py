@@ -78,7 +78,7 @@ This dashboard allows you to:
 
 🌟 Identify top-performing stores using visual insights based on predicted outcomes.
 
-🤖 Make predictions and look at confidence levels of RGBoost model and Linear Regression.
+🤖 Make predictions and look at confidence levels of RGBoost model.
 
 👉 Tip: To compare performance across stores, keep the Store Number fixed in the sidebar and scroll down to the “Top Performing Stores” section.
     """)
@@ -90,7 +90,7 @@ with col1:
 with col2:
     st.markdown('<h2 class="main-header"> Sales Prediction Dashboard</h2>', unsafe_allow_html=True)
 st.markdown("### 🚀 Real-time Business Forecast for Sales Demand")
-st.subheader("Use the sidebar to enter input values.")
+st.caption("Use the sidebar to enter input values.")
 st.title("📊 RGBoost Sales Prediction")
 
 # Load models
@@ -215,10 +215,7 @@ def predict_lr_with_ci(model, X_input, train_columns):
     lower = summary["obs_ci_lower"].values[0]
     upper = summary["obs_ci_upper"].values[0]
     return pred_mean, lower, upper
-
-# --------------------------
-# XGBoost CI via Bootstrapping
-# --------------------------
+    
 # --------------------------
 # XGBoost CI via Bootstrapping
 # --------------------------
@@ -232,7 +229,6 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
     lower = np.percentile(preds, 2.5)
     upper = np.percentile(preds, 97.5)
     return mean_pred, lower, upper
-
 
 # --------------------------
 # Prediction Based on XGBoost
@@ -258,92 +254,6 @@ else:
     except Exception as e:
         st.error(f"❌ Prediction failed: {e}")
 
-# def bootstrap_prediction(model, X_input, n_iterations=100):
-#     preds = []
-
-#     # Ensure input is float and clean
-#     X_input_clean = X_input.copy()
-#     X_input_clean = X_input_clean.astype(float)
-#     X_input_clean = X_input_clean[model.get_booster().feature_names]  # Ensure order matches training
-
-#     for _ in range(n_iterations):
-#         pred = model.predict(X_input_clean)[0]
-#         preds.append(pred)
-
-#     preds = np.array(preds)
-#     mean_pred = np.mean(preds)
-#     lower = np.percentile(preds, 2.5)
-#     upper = np.percentile(preds, 97.5)
-#     return mean_pred, lower, upper
-# def bootstrap_prediction(model, X_input, n_iterations=100):
-#     preds = []
-#     for _ in range(n_iterations):
-#         pred = model.predict(X_input)[0]
-#         preds.append(pred)
-#     preds = np.array(preds)
-#     mean_pred = np.mean(preds)
-#     lower = np.percentile(preds, 2.5)
-#     upper = np.percentile(preds, 97.5)
-#     return mean_pred, lower, upper
-
-# --------------------------
-# Prediction Based on XGBoost
-# --------------------------
-st.subheader("📈 Sales Prediction XGBoost with Confidence Interval")
-
-# X_train_const = sm.add_constant(x_train)
-# ols_model = sm.OLS(y_train, X_train_const).fit()
-# train_columns = X_train_const.columns
-# # Clean and prepare fresh input each time
-# input_base = pd.DataFrame([input_dict])[feature_list].copy()
-
-# # Ensure numeric inputs only (for XGBoost)
-# input_base = input_base.astype(float)
-
-# model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
-
-# if input_valid:
-#     if model_choice == "Linear Regression":
-#         try:
-#             # Make a copy and prepare input for Linear Regression
-#             input_lr = sm.add_constant(input_base, has_constant='add')
-#             input_lr = input_lr.reindex(columns=train_columns, fill_value=0)
-
-#             pred, lower, upper = predict_lr_with_ci(ols_model, input_lr, train_columns)
-#             st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
-#             st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-#         except Exception as e:
-#             st.error(f"❌ Linear Regression failed: {e}")
-
-#     elif model_choice == "XGBoost":
-#         try:
-#             # Reorder input for XGBoost to match training features
-#             input_xgb = input_base[feature_list].astype(float)
-
-#             mean, lower, upper = bootstrap_prediction(xgb_model, input_xgb)
-#             st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
-#             st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-#         except Exception as e:
-#             st.error(f"❌ XGBoost prediction failed: {e}")
-# else:
-#     st.warning("⚠️ Please fix input errors before generating predictions.")
-
-# model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
-# if input_valid:
-#     if model_choice == "Linear Regression":
-#         pred, lower, upper = predict_lr_with_ci(ols_model, input_data, train_columns)
-#         st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
-#         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-
-#     elif model_choice == "XGBoost":
-#          try:
-#             mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
-#             st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
-#             st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-#          except Exception as e:
-#              st.error(f"❌ XGBoost prediction failed: {e}")
-# else:
-#     st.warning("⚠️ Please fix input errors before generating predictions.")
 st.write("reached line 248")
 # # Load and display model metrics - Stopped Sanity check here
 with open("model_metrics.json", "r") as f:
@@ -406,7 +316,7 @@ st.plotly_chart(fig, use_container_width=True)
 st.write("✅ Reached line 326")
 
 # Predict Sales by product family
-# After your existing input_dict is built and single prediction code
+# After existing input_dict is built and single prediction code
 # Prepare predictions for all families dynamically
 base_input = input_dict.copy()
 family_features = [f for f in feature_list if f.startswith("family_grouped_")]
@@ -501,7 +411,6 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 
 with tab1:
     st.subheader("📊 Impact of Promotions on Sales")
-
     # Aggregate average sales by promotion levels
     promo_impact = df1.groupby("onpromotion")["sales"].mean().reset_index()
 
@@ -543,29 +452,6 @@ with tab2:
 with tab3:   # Stopped here
     # Compare Predicted vs. Actual Sales
     st.subheader("Actual vs Predicted Sales Over Time")
-    # try:
-    #     col_names = list(df1.columns)
-    #     st.text("📌 First 10 columns in df1:\n" + "\n".join(col_names[:10]))
-    #     st.text(f"Total columns: {len(col_names)}")    
-    # except Exception as e:
-    #     st.error(f"❌ Failed to inspect df1 columns: {e}")
-    #     st.stop()   
-
-    # # Validate column presence
-
-
-    # st.write("📌 Expected features:", feature_list)
-
-    # missing = [col for col in feature_list if col not in df1.columns]
-    # if missing:
-    #     st.error(f"❌ Missing features in df1: {missing}")
-    #     st.stop()
-
-    # if 'sales' not in df1.columns:
-    #     st.error("❌ 'sales' column not found in df1.")
-    #     st.stop()
-
-    # Safe prediction
     try:
         X = df1[feature_list]
         y_actual = df1['sales']
