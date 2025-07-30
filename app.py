@@ -113,8 +113,6 @@ def load_models():
 # Convert only numeric columns
 for col in df1.select_dtypes(include=["int64", "float64", "bool"]).columns:
     df1[col] = pd.to_numeric(df1[col], errors="coerce")
-
-
     return xgb_model, linear_model, feature_list, x_train, y_train, df1
 
 xgb_model, linear_model, feature_list, x_train, y_train, df1 = load_models()
