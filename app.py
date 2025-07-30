@@ -170,9 +170,33 @@ if onpromotion > 500 and transactions < 50:
 
 
 # --- Build Input Data ---
-input_dict = {col: 0 for col in feature_list}  # default all to 0
+# input_dict = {col: 0 for col in feature_list}  # default all to 0
 
-# Add numeric inputs
+# # Add numeric inputs
+# input_dict.update({
+#     "id": 0,
+#     "store_nbr": store_nbr,
+#     "onpromotion": onpromotion,
+#     "dcoilwtico": dcoilwtico,
+#     "transactions": transactions,
+#     "month": month,
+#     "year": year,
+#     "weekOfYear": weekOfYear,
+#     "quarter": quarter,
+#     "day": day
+# })
+
+# # One-hot encodings
+# input_dict[season] = 1
+# input_dict[state] = 1
+# input_dict[weekpart] = 1
+# input_dict[city] = 1
+# input_dict[holiday] = 1
+# input_dict[family] = 1
+# Default all features to 0
+input_dict = {col: 0 for col in feature_list}
+
+# Numeric features
 input_dict.update({
     "id": 0,
     "store_nbr": store_nbr,
@@ -186,14 +210,17 @@ input_dict.update({
     "day": day
 })
 
-# One-hot encodings
-input_dict[season] = 1
-input_dict[state] = 1
-input_dict[weekpart] = 1
-input_dict[city] = 1
-input_dict[holiday] = 1
-input_dict[family] = 1
+# Safe one-hot updates (only if feature exists)
+for onehot_col in [season, state, weekpart, city, holiday, family]:
+    if onehot_col in input_dict:
+        input_dict[onehot_col] = 1
+    else:
+        st.warning(f"⚠️ Warning: {onehot_col} is not in model feature list.")
 
+missing_cols = [col for col in feature_list if col not in input_dict]
+if missing_cols:
+    st.error(f"❌ Feature list mismatch: missing in input_dict: {missing_cols}")
+    st.stop()
 
 # Create DataFrame in correct feature order
 input_data = pd.DataFrame([input_dict])[feature_list]
