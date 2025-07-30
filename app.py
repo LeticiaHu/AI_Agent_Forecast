@@ -170,6 +170,50 @@ if onpromotion > 500 and transactions < 50:
 
 
 # --- Build Input Data ---
+# Step 1: Initialize all features to 0
+input_dict = {col: 0 for col in feature_list}
+
+# Step 2: Safely add numeric features
+numeric_inputs = {
+    "id": 0,
+    "store_nbr": store_nbr,
+    "onpromotion": onpromotion,
+    "dcoilwtico": dcoilwtico,
+    "transactions": transactions,
+    "month": month,
+    "year": year,
+    "weekOfYear": weekOfYear,
+    "quarter": quarter,
+    "day": day
+}
+for key, value in numeric_inputs.items():
+    if key in input_dict:
+        input_dict[key] = value
+    else:
+        st.warning(f"⚠️ Feature '{key}' not found in model feature list.")
+
+# Step 3: One-hot inputs (only if present in model)
+for cat_feature in [season, state, weekpart, city, holiday, family]:
+    if cat_feature in input_dict:
+        input_dict[cat_feature] = 1
+    else:
+        st.warning(f"⚠️ One-hot feature '{cat_feature}' missing from feature_list.")
+
+# Step 4: Show missing values before prediction
+missing_for_model = [col for col in feature_list if col not in input_dict]
+if missing_for_model:
+    st.error(f"❌ Can't create input: Missing {missing_for_model}")
+    st.stop()
+
+# Step 5: Build input safely
+try:
+    input_data = pd.DataFrame([input_dict])[feature_list]
+except Exception as e:
+    st.error(f"❌ Failed to build input_data: {e}")
+    st.stop()
+st.write("✅ input_dict keys:", list(input_dict.keys())[:10])
+st.write("✅ feature_list sample:", feature_list[:10])
+
 # input_dict = {col: 0 for col in feature_list}  # default all to 0
 
 # # Add numeric inputs
@@ -197,30 +241,30 @@ if onpromotion > 500 and transactions < 50:
 input_dict = {col: 0 for col in feature_list}
 
 # Numeric features
-input_dict.update({
-    "id": 0,
-    "store_nbr": store_nbr,
-    "onpromotion": onpromotion,
-    "dcoilwtico": dcoilwtico,
-    "transactions": transactions,
-    "month": month,
-    "year": year,
-    "weekOfYear": weekOfYear,
-    "quarter": quarter,
-    "day": day
-})
+# input_dict.update({
+#     "id": 0,
+#     "store_nbr": store_nbr,
+#     "onpromotion": onpromotion,
+#     "dcoilwtico": dcoilwtico,
+#     "transactions": transactions,
+#     "month": month,
+#     "year": year,
+#     "weekOfYear": weekOfYear,
+#     "quarter": quarter,
+#     "day": day
+# })
 
-# Safe one-hot updates (only if feature exists)
-for onehot_col in [season, state, weekpart, city, holiday, family]:
-    if onehot_col in input_dict:
-        input_dict[onehot_col] = 1
-    else:
-        st.warning(f"⚠️ Warning: {onehot_col} is not in model feature list.")
+# # Safe one-hot updates (only if feature exists)
+# for onehot_col in [season, state, weekpart, city, holiday, family]:
+#     if onehot_col in input_dict:
+#         input_dict[onehot_col] = 1
+#     else:
+#         st.warning(f"⚠️ Warning: {onehot_col} is not in model feature list.")
 
-missing_cols = [col for col in feature_list if col not in input_dict]
-if missing_cols:
-    st.error(f"❌ Feature list mismatch: missing in input_dict: {missing_cols}")
-    st.stop()
+# missing_cols = [col for col in feature_list if col not in input_dict]
+# if missing_cols:
+#     st.error(f"❌ Feature list mismatch: missing in input_dict: {missing_cols}")
+#     st.stop()
 
 # Create DataFrame in correct feature order
 input_data = pd.DataFrame([input_dict])[feature_list]
