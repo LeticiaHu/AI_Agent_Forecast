@@ -300,30 +300,30 @@ st.write("✅ Reached line 271")
 #     metrics = json.load(f)
 
 # # --- Convert nested dict to DataFrame ---
-# data = []
-# for model_name, splits in metrics.items():
-#     for split_name, metric_values in splits.items():
-#         row = {
-#             "Model": model_name,
-#             "Dataset": split_name
-#         }
-#         row.update(metric_values)
-#         data.append(row)
-# metrics_df = pd.DataFrame(data)
+data = []
+for model_name, splits in metrics.items():
+    for split_name, metric_values in splits.items():
+        row = {
+            "Model": model_name,
+            "Dataset": split_name
+        }
+        row.update(metric_values)
+        data.append(row)
+metrics_df = pd.DataFrame(data)
 
-# # --- Ensure all metric columns are numeric ---
-# for col in ["RMSE", "R2", "MAE"]:
-#     if col in metrics_df.columns:
-#         metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
+# --- Ensure all metric columns are numeric ---
+for col in ["RMSE", "R2", "MAE"]:
+    if col in metrics_df.columns:
+        metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
         
-# st.write("✅ Reached line 291")
-# # --- Display metrics table ---
-# st.subheader("📊 Model Performance Comparison Table")
-# st.dataframe(metrics_df.style.format({
-#     "RMSE": "{:.4f}",
-#     "R2": "{:.4f}",
-#     "MAE": "{:.4f}"
-# }), use_container_width=True)
+st.write("✅ Reached line 291")
+# --- Display metrics table ---
+st.subheader("📊 Model Performance Comparison Table")
+st.dataframe(metrics_df.style.format({
+    "RMSE": "{:.4f}",
+    "R2": "{:.4f}",
+    "MAE": "{:.4f}"
+}), use_container_width=True)
 
 # # Show metrics on a bar chart
 # # Select metric for visualization by using a dropdown menu
