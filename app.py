@@ -233,7 +233,7 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
 # --------------------------
 # Prediction Based on XGBoost
 # --------------------------
-st.subheader("📈 Sales Prediction XGBoost Only")
+st.subheader("📈 Sales Prediction XGBoost")
 
 # Validate input data
 if input_data is None or input_data.isnull().any().any():
@@ -253,25 +253,25 @@ else:
         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
     except Exception as e:
         st.error(f"❌ Prediction failed: {e}")
-
+# st.write("✅ Reached line 256")
 # # Load and display model metrics - Stopped Sanity check here
-# with open("model_metrics.json", "r") as f:
-#     metrics = json.load(f)
+with open("model_metrics.json", "r") as f:
+    metrics = json.load(f)
 
-# data = []
-# for model_name, splits in metrics.items():
-#     for split_name, metric_values in splits.items():
-#         row = {"Model": model_name, "Dataset": split_name}
-#         row.update(metric_values)
-#         data.append(row)
+data = []
+for model_name, splits in metrics.items():
+    for split_name, metric_values in splits.items():
+        row = {"Model": model_name, "Dataset": split_name}
+        row.update(metric_values)
+        data.append(row)
 
-# metrics_df = pd.DataFrame(data)
-# for col in ["RMSE", "R2", "MAE"]:
-#     metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
-
-# # if x_train.isnull().values.any() or y_train.isnull().values.any():
-# #     st.error("❌ NaNs detected in training data.")
-# # else:
+metrics_df = pd.DataFrame(data)
+for col in ["RMSE", "R2", "MAE"]:
+    metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
+st.write("✅ Reached line 271")
+# if x_train.isnull().values.any() or y_train.isnull().values.any():
+#     st.error("❌ NaNs detected in training data.")
+# else:
 # X_train_const = sm.add_constant(x_train)
 # ols_model = sm.OLS(y_train, X_train_const).fit()
 # train_columns = X_train_const.columns
