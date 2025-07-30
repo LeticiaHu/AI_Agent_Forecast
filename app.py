@@ -12,7 +12,7 @@ import json
 
 st.set_page_config(
     page_title="Sales Forecast Dashboard",
-    layout="wide",  # or "centered" if you want a tighter layout
+    layout="wide",  # or "centered" for a tighter layout
     initial_sidebar_state="expanded")
 
 # Custom CSS for better styling
@@ -78,7 +78,7 @@ This dashboard allows you to:
 
 🌟 Identify top-performing stores using visual insights based on predicted outcomes.
 
-🤖 Make predictions and look at confidence levels of RGBoost model.
+🤖 Make predictions and look at confidence levels of RGBoost model and Linear Regression.
 
 👉 Tip: To compare performance across stores, keep the Store Number fixed in the sidebar and scroll down to the “Top Performing Stores” section.
     """)
@@ -238,7 +238,7 @@ st.subheader("📈 Sales Prediction XGBoost with Confidence Interval")
 X_train_const = sm.add_constant(x_train)
 ols_model = sm.OLS(y_train, X_train_const).fit()
 train_columns = X_train_const.columns
-st.write("✅ Reached line 242")
+
 model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
 if input_valid:
     if model_choice == "Linear Regression":
@@ -252,25 +252,6 @@ if input_valid:
         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
 else:
     st.warning("⚠️ Please fix input errors before generating predictions.")
-# Validate input data
-# if input_data is None or input_data.isnull().any().any():
-#     st.warning("⚠️ Please fix input errors before generating predictions.")
-# else:
-#     # Ensure numeric input
-#     try:
-#         input_data = input_data.astype("float64")
-#     except Exception as e:
-#         st.error(f"❌ Input data conversion failed: {e}")
-#         st.stop()
-
-#     # Run XGBoost prediction with confidence interval
-#     try:
-#         mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
-#         st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
-#         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-#     except Exception as e:
-#         st.error(f"❌ Prediction failed: {e}")
-st.write("✅ Reached line 256")
 
 # # Load and display model metrics - Stopped Sanity check here
 with open("model_metrics.json", "r") as f:
@@ -286,36 +267,6 @@ for model_name, splits in metrics.items():
 metrics_df = pd.DataFrame(data)
 for col in ["RMSE", "R2", "MAE"]:
     metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
-st.write("✅ Reached line 271")
-# if x_train.isnull().values.any() or y_train.isnull().values.any():
-#     st.error("❌ NaNs detected in training data.")
-# else:
-# X_train_const = sm.add_constant(x_train)
-# ols_model = sm.OLS(y_train, X_train_const).fit()
-# train_columns = X_train_const.columns
-
-# st.write("✅ Reached after fitting OLS model")
-
-
-# model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
-# if input_valid:
-#     if model_choice == "Linear Regression":
-#         pred, lower, upper = predict_lr_with_ci(ols_model, input_data, train_columns)
-#         st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
-#         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-
-#     elif model_choice == "XGBoost":
-#         mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
-#         st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
-#         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-# else:
-#     st.warning("⚠️ Please fix input errors before generating predictions.")
-
-# st.write("✅ Reached line 291")
-# # Add the RSquared and evaluation metrics
-# # --- Load saved metrics ---
-# with open("model_metrics.json", "r") as f:
-#     metrics = json.load(f)
 
 # # --- Convert nested dict to DataFrame ---
 data = []
@@ -341,7 +292,6 @@ st.dataframe(metrics_df.style.format({
     "R2": "{:.4f}",
     "MAE": "{:.4f}"
 }), use_container_width=True)
-st.write("✅ Reached line 326")
 
 # # Show metrics on a bar chart
 # # Select metric for visualization by using a dropdown menu
