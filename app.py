@@ -10,7 +10,6 @@ import numpy as np
 import joblib
 import json
 
-
 st.set_page_config(
     page_title="Sales Forecast Dashboard",
     layout="wide",  # or "centered" if you want a tighter layout
@@ -79,23 +78,20 @@ This dashboard allows you to:
 
 🌟 Identify top-performing stores using visual insights based on predicted outcomes.
 
-🤖 Compare predictions from two models: XGBoost (nonlinear boosting model) and Linear Regression (interpretable baseline model) to understand strengths and differences.
+🤖 Make predictions and look at confidence levels of RGBoost model.
 
 👉 Tip: To compare performance across stores, keep the Store Number fixed in the sidebar and scroll down to the “Top Performing Stores” section.
     """)
 
 
 col1, col2 = st.columns([1, 8])  # adjust ratio as needed
-
 with col1:
     st.image("Favorita.png", width=100)
-
 with col2:
     st.markdown('<h2 class="main-header"> Sales Prediction Dashboard</h2>', unsafe_allow_html=True)
-
 st.markdown("### 🚀 Real-time Business Forecast for Sales Demand")
 st.subheader("Use the sidebar to enter input values.")
-st.title("📊 Sales Prediction RGBoost vs. Linear Regression")
+st.title("📊 RGBoost Sales Prediction")
 
 # Load models
 @st.cache_resource
@@ -111,19 +107,16 @@ def load_models():
     # Convert only numeric columns
     for col in df1.select_dtypes(include=["int64", "float64", "bool"]).columns:
         df1[col] = pd.to_numeric(df1[col], errors="coerce")
-
+        
     return xgb_model, linear_model, feature_list, x_train, y_train, df1
-
 xgb_model, linear_model, feature_list, x_train, y_train, df1 = load_models()
-
-
 
 # Sidebar for inputs
 st.sidebar.header("Input Features")
 st.sidebar.markdown("---")
 
 # Group all inputs inside an expander for better mobile layout
-with st.sidebar.expander("🔧 Adjust Prediction Inputs", expanded=True):
+with st.sidebar.expander("🔧Adjust Prediction Inputs", expanded=True):
 
     transactions = st.number_input(
         "Transactions", min_value=0.0, value=100.0,
@@ -223,7 +216,6 @@ def predict_lr_with_ci(model, X_input, train_columns):
     upper = summary["obs_ci_upper"].values[0]
     return pred_mean, lower, upper
 
-
 # --------------------------
 # XGBoost CI via Bootstrapping
 # --------------------------
@@ -238,11 +230,10 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
     upper = np.percentile(preds, 97.5)
     return mean_pred, lower, upper
 
-
 # --------------------------
 # Prediction Based on XGBoost
 # --------------------------
-st.subheader("📈 Sales Prediction (XGBoost Only)")
+st.subheader("📈 Sales Prediction XGBoost Only")
 
 # Validate input data
 if input_data is None or input_data.isnull().any().any():
@@ -262,7 +253,6 @@ else:
         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
     except Exception as e:
         st.error(f"❌ Prediction failed: {e}")
-
 
 # # Load and display model metrics - Stopped Sanity check here
 # with open("model_metrics.json", "r") as f:
