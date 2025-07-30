@@ -234,26 +234,45 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
 # Prediction Based on XGBoost
 # --------------------------
 st.subheader("📈 Sales Prediction XGBoost")
+st.subheader("📈 Model Prediction with Confidence Interval")
 
-# Validate input data
-if input_data is None or input_data.isnull().any().any():
-    st.warning("⚠️ Please fix input errors before generating predictions.")
-else:
-    # Ensure numeric input
-    try:
-        input_data = input_data.astype("float64")
-    except Exception as e:
-        st.error(f"❌ Input data conversion failed: {e}")
-        st.stop()
-
-    # Run XGBoost prediction with confidence interval
-    try:
+X_train_const = sm.add_constant(x_train)
+ols_model = sm.OLS(y_train, X_train_const).fit()
+train_columns = X_train_const.columns
+st.write("✅ Reached line 242")
+model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
+if input_valid:
+    if model_choice == "Linear Regression":
+        pred, lower, upper = predict_lr_with_ci(ols_model, input_data, train_columns)
+        st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
+        st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+st.write("✅ Reached line 249")
+    elif model_choice == "XGBoost":
         mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
         st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-    except Exception as e:
-        st.error(f"❌ Prediction failed: {e}")
-# st.write("✅ Reached line 256")
+else:
+    st.warning("⚠️ Please fix input errors before generating predictions.")
+# Validate input data
+# if input_data is None or input_data.isnull().any().any():
+#     st.warning("⚠️ Please fix input errors before generating predictions.")
+# else:
+#     # Ensure numeric input
+#     try:
+#         input_data = input_data.astype("float64")
+#     except Exception as e:
+#         st.error(f"❌ Input data conversion failed: {e}")
+#         st.stop()
+
+#     # Run XGBoost prediction with confidence interval
+#     try:
+#         mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
+#         st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
+#         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+#     except Exception as e:
+#         st.error(f"❌ Prediction failed: {e}")
+st.write("✅ Reached line 256")
+
 # # Load and display model metrics - Stopped Sanity check here
 with open("model_metrics.json", "r") as f:
     metrics = json.load(f)
