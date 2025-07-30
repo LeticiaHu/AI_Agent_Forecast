@@ -252,7 +252,7 @@ if input_valid:
         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
 else:
     st.warning("⚠️ Please fix input errors before generating predictions.")
-
+st.write("reached line 248")
 # # Load and display model metrics - Stopped Sanity check here
 with open("model_metrics.json", "r") as f:
     metrics = json.load(f)
