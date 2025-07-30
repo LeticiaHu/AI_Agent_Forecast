@@ -255,23 +255,56 @@ st.subheader("📈 Sales Prediction XGBoost with Confidence Interval")
 X_train_const = sm.add_constant(x_train)
 ols_model = sm.OLS(y_train, X_train_const).fit()
 train_columns = X_train_const.columns
+# Clean and prepare fresh input each time
+input_base = pd.DataFrame([input_dict])[feature_list].copy()
+
+# Ensure numeric inputs only (for XGBoost)
+input_base = input_base.astype(float)
 
 model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
+
 if input_valid:
     if model_choice == "Linear Regression":
-        pred, lower, upper = predict_lr_with_ci(ols_model, input_data, train_columns)
-        st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
-        st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+        try:
+            # Make a copy and prepare input for Linear Regression
+            input_lr = sm.add_constant(input_base, has_constant='add')
+            input_lr = input_lr.reindex(columns=train_columns, fill_value=0)
+
+            pred, lower, upper = predict_lr_with_ci(ols_model, input_lr, train_columns)
+            st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
+            st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+        except Exception as e:
+            st.error(f"❌ Linear Regression failed: {e}")
 
     elif model_choice == "XGBoost":
-         try:
-            mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
+        try:
+            # Reorder input for XGBoost to match training features
+            input_xgb = input_base[feature_list].astype(float)
+
+            mean, lower, upper = bootstrap_prediction(xgb_model, input_xgb)
             st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
             st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-         except Exception as e:
-             st.error(f"❌ XGBoost prediction failed: {e}")
+        except Exception as e:
+            st.error(f"❌ XGBoost prediction failed: {e}")
 else:
     st.warning("⚠️ Please fix input errors before generating predictions.")
+
+# model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
+# if input_valid:
+#     if model_choice == "Linear Regression":
+#         pred, lower, upper = predict_lr_with_ci(ols_model, input_data, train_columns)
+#         st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
+#         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+
+#     elif model_choice == "XGBoost":
+#          try:
+#             mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
+#             st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
+#             st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+#          except Exception as e:
+#              st.error(f"❌ XGBoost prediction failed: {e}")
+# else:
+#     st.warning("⚠️ Please fix input errors before generating predictions.")
 st.write("reached line 248")
 # # Load and display model metrics - Stopped Sanity check here
 with open("model_metrics.json", "r") as f:
