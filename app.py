@@ -233,8 +233,7 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
 # --------------------------
 # Prediction Based on XGBoost
 # --------------------------
-st.subheader("📈 Sales Prediction XGBoost")
-st.subheader("📈 Model Prediction with Confidence Interval")
+st.subheader("📈 Sales Prediction XGBoost with Confidence Interval")
 
 X_train_const = sm.add_constant(x_train)
 ols_model = sm.OLS(y_train, X_train_const).fit()
