@@ -192,7 +192,7 @@ numeric_inputs = {
     "id": 0,
     "store_nbr": store_nbr,
     "onpromotion": onpromotion,
-    "dcoilwtico": oil_price,  # renamed var!
+    "dcoilwtico": dcoilwtico,
     "transactions": transactions,
     "month": month,
     "year": year,
