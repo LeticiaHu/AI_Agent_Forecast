@@ -316,7 +316,6 @@ for col in ["RMSE", "R2", "MAE"]:
     if col in metrics_df.columns:
         metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
         
-st.write("✅ Reached line 291")
 # --- Display metrics table ---
 st.subheader("📊 Model Performance Comparison Table")
 st.dataframe(metrics_df.style.format({
@@ -324,25 +323,27 @@ st.dataframe(metrics_df.style.format({
     "R2": "{:.4f}",
     "MAE": "{:.4f}"
 }), use_container_width=True)
+st.write("✅ Reached line 326")
 
 # # Show metrics on a bar chart
 # # Select metric for visualization by using a dropdown menu
-# st.subheader("Choose the metric to visualize:")
-# metric = st.selectbox("Select Metric to Visualize", ["RMSE", "R2", "MAE"])
+st.subheader("Choose the metric to visualize:")
+metric = st.selectbox("Select Metric to Visualize", ["RMSE", "R2", "MAE"])
 
-# # Assuming metrics_df has columns: Model, Dataset (train/test), and metric columns
-# fig = px.bar(
-#     metrics_df,
-#     x="Model",
-#     y=metric,
-#     color="Dataset",
-#     barmode="group",
-#     title=f"Model Comparison by {metric}",
-#     labels={metric: metric, "Model": "Model Name"}
-# ) 
+# Assuming metrics_df has columns: Model, Dataset (train/test), and metric columns
+fig = px.bar(
+    metrics_df,
+    x="Model",
+    y=metric,
+    color="Dataset",
+    barmode="group",
+    title=f"Model Comparison by {metric}",
+    labels={metric: metric, "Model": "Model Name"}
+) 
 
-# # Show the interactive plot with legend toggling enabled by default
-# st.plotly_chart(fig, use_container_width=True)
+# Show the interactive plot with legend toggling enabled by default
+st.plotly_chart(fig, use_container_width=True)
+st.write("✅ Reached line 326")
 
 # Predict Sales by product family
 # After your existing input_dict is built and single prediction code
@@ -428,7 +429,6 @@ with col3:
 with col4:
     st.metric('Product Category', product_families)
 
-
 # Create tabs for different views
 st.markdown('---')
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
@@ -483,28 +483,27 @@ with tab2:
 with tab3:   # Stopped here
     # Compare Predicted vs. Actual Sales
     st.subheader("Actual vs Predicted Sales Over Time")
-    try:
-        col_names = list(df1.columns)
-        st.text("📌 First 10 columns in df1:\n" + "\n".join(col_names[:10]))
-        st.text(f"Total columns: {len(col_names)}")    
-    except Exception as e:
-        st.error(f"❌ Failed to inspect df1 columns: {e}")
-        st.stop()
-       
+    # try:
+    #     col_names = list(df1.columns)
+    #     st.text("📌 First 10 columns in df1:\n" + "\n".join(col_names[:10]))
+    #     st.text(f"Total columns: {len(col_names)}")    
+    # except Exception as e:
+    #     st.error(f"❌ Failed to inspect df1 columns: {e}")
+    #     st.stop()   
 
-    # Validate column presence
+    # # Validate column presence
 
 
-    st.write("📌 Expected features:", feature_list)
+    # st.write("📌 Expected features:", feature_list)
 
-    missing = [col for col in feature_list if col not in df1.columns]
-    if missing:
-        st.error(f"❌ Missing features in df1: {missing}")
-        st.stop()
+    # missing = [col for col in feature_list if col not in df1.columns]
+    # if missing:
+    #     st.error(f"❌ Missing features in df1: {missing}")
+    #     st.stop()
 
-    if 'sales' not in df1.columns:
-        st.error("❌ 'sales' column not found in df1.")
-        st.stop()
+    # if 'sales' not in df1.columns:
+    #     st.error("❌ 'sales' column not found in df1.")
+    #     st.stop()
 
     # Safe prediction
     try:
@@ -516,9 +515,7 @@ with tab3:   # Stopped here
         df1['actual_sales'] = y_actual
 
         df1['time_label'] = df1['year'].astype(str) + '-W' + df1['weekOfYear'].astype(str).str.zfill(2)
-
         grouped = df1.groupby('time_label')[['actual_sales', 'predicted_sales']].mean().reset_index()
-
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=grouped['time_label'], y=grouped['actual_sales'],
                                  mode='lines+markers', name='Actual Sales'))
@@ -534,30 +531,6 @@ with tab3:   # Stopped here
 
     except Exception as e:
         st.error(f"❌ Prediction or plotting failed: {e}")
-
-    # st.subheader("Actual vs Predicted Sales Over Time")
-    # X = df1[feature_list]
-    # y_actual = df1['sales']
-
-    # y_pred = xgb_model.predict(X)
-    # df1['predicted_sales'] = y_pred
-    # df1['actual_sales'] = y_actual
-
-    # df1['time_label'] = df1['year'].astype(str) + '-W' + df1['weekOfYear'].astype(str).str.zfill(2)
-    # grouped = df1.groupby('time_label')[['actual_sales', 'predicted_sales']].mean().reset_index()
-    # fig = go.Figure()
-    # fig.add_trace(go.Scatter(x=grouped['time_label'], y=grouped['actual_sales'],
-    #                          mode='lines+markers', name='Actual Sales'))
-    # fig.add_trace(go.Scatter(x=grouped['time_label'], y=grouped['predicted_sales'],
-    #                          mode='lines+markers', name='Predicted Sales'))
-
-    # fig.update_layout(title='Actual vs Predicted Sales Over Time',
-    #                   xaxis_title='Year-Week',
-    #                   yaxis_title='Sales',
-    #                   template='plotly_white')
-
-    # st.plotly_chart(fig, use_container_width=True)
-
 
 with tab4:
     # Create a correlation heatmap
