@@ -221,14 +221,31 @@ def predict_lr_with_ci(model, X_input, train_columns):
 # --------------------------
 def bootstrap_prediction(model, X_input, n_iterations=100):
     preds = []
+
+    # Ensure input is float and clean
+    X_input_clean = X_input.copy()
+    X_input_clean = X_input_clean.astype(float)
+    X_input_clean = X_input_clean[model.get_booster().feature_names]  # Ensure order matches training
+
     for _ in range(n_iterations):
-        pred = model.predict(X_input)[0]
+        pred = model.predict(X_input_clean)[0]
         preds.append(pred)
+
     preds = np.array(preds)
     mean_pred = np.mean(preds)
     lower = np.percentile(preds, 2.5)
     upper = np.percentile(preds, 97.5)
     return mean_pred, lower, upper
+# def bootstrap_prediction(model, X_input, n_iterations=100):
+#     preds = []
+#     for _ in range(n_iterations):
+#         pred = model.predict(X_input)[0]
+#         preds.append(pred)
+#     preds = np.array(preds)
+#     mean_pred = np.mean(preds)
+#     lower = np.percentile(preds, 2.5)
+#     upper = np.percentile(preds, 97.5)
+#     return mean_pred, lower, upper
 
 # --------------------------
 # Prediction Based on XGBoost
@@ -247,9 +264,12 @@ if input_valid:
         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
 
     elif model_choice == "XGBoost":
-        mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
-        st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
-        st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+         try:
+            mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
+            st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
+            st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+        except Exception as e:
+            st.error(f"❌ XGBoost prediction failed: {e}")
 else:
     st.warning("⚠️ Please fix input errors before generating predictions.")
 st.write("reached line 248")
