@@ -495,13 +495,14 @@ with tab2:
 with tab3:   # Stopped here
     # Compare Predicted vs. Actual Sales
     st.subheader("Actual vs Predicted Sales Over Time")
-       try:
-           col_names = list(df1.columns)
-           st.text("📌 First 10 columns in df1:\n" + "\n".join(col_names[:10]))
-           st.text(f"Total columns: {len(col_names)}")
-      except Exception as e:
-           st.error(f"❌ Failed to inspect df1 columns: {e}")
-           st.stop()
+    try:
+        col_names = list(df1.columns)
+        st.text("📌 First 10 columns in df1:\n" + "\n".join(col_names[:10]))
+        st.text(f"Total columns: {len(col_names)}")    
+     except Exception as e:
+         st.error(f"❌ Failed to inspect df1 columns: {e}")
+         st.stop()
+       
 
     # Validate column presence
 
