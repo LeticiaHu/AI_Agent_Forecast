@@ -246,7 +246,7 @@ if input_valid:
         pred, lower, upper = predict_lr_with_ci(ols_model, input_data, train_columns)
         st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
         st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-st.write("✅ Reached line 249")
+
     elif model_choice == "XGBoost":
         mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
         st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
