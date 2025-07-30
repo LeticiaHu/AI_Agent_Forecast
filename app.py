@@ -268,8 +268,8 @@ if input_valid:
             mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
             st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
             st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-        except Exception as e:
-            st.error(f"❌ XGBoost prediction failed: {e}")
+         except Exception as e:
+             st.error(f"❌ XGBoost prediction failed: {e}")
 else:
     st.warning("⚠️ Please fix input errors before generating predictions.")
 st.write("reached line 248")
