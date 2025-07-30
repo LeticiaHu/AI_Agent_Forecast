@@ -91,7 +91,6 @@ with col2:
     st.markdown('<h2 class="main-header"> Sales Prediction Dashboard</h2>', unsafe_allow_html=True)
 st.markdown("### 🚀 Real-time Business Forecast for Sales Demand")
 st.caption("Use the sidebar to enter input values.")
-st.title("📊 RGBoost Sales Prediction")
 
 # Load models
 @st.cache_resource
@@ -170,21 +169,56 @@ if onpromotion > 500 and transactions < 50:
 
 
 # --- Build Input Data ---
-input_dict = {col: 0 for col in feature_list}  # default all to 0
+# input_dict = {col: 0 for col in feature_list}  # default all to 0
 
-# Add numeric inputs
-input_dict.update({
+# # Add numeric inputs
+# input_dict.update({
+#     "id": 0,
+#     "store_nbr": store_nbr,
+#     "onpromotion": onpromotion,
+#     "dcoilwtico": dcoilwtico,
+#     "transactions": transactions,
+#     "month": month,
+#     "year": year,
+#     "weekOfYear": weekOfYear,
+#     "quarter": quarter,
+#     "day": day
+# })
+# Initialize input_dict with all features
+input_dict = {col: 0 for col in feature_list}
+
+# Safely add numeric values
+numeric_inputs = {
     "id": 0,
     "store_nbr": store_nbr,
     "onpromotion": onpromotion,
-    "dcoilwtico": dcoilwtico,
+    "dcoilwtico": oil_price,  # renamed var!
     "transactions": transactions,
     "month": month,
     "year": year,
     "weekOfYear": weekOfYear,
     "quarter": quarter,
     "day": day
-})
+}
+for k, v in numeric_inputs.items():
+    if k in input_dict:
+        input_dict[k] = v
+    else:
+        st.warning(f"⚠️ '{k}' not found in feature list!")
+
+# One-hot categories
+for col in [season, state, weekpart, city, holiday, family]:
+    if col in input_dict:
+        input_dict[col] = 1
+    else:
+        st.warning(f"⚠️ One-hot feature '{col}' missing in model feature list")
+
+# Build input row safely
+try:
+    input_data = pd.DataFrame([input_dict])[feature_list]
+except Exception as e:
+    st.error(f"❌ Failed to build input_data: {e}")
+    st.stop()
 
 # One-hot encodings
 input_dict[season] = 1
