@@ -219,23 +219,62 @@ def predict_lr_with_ci(model, X_input, train_columns):
 # --------------------------
 # XGBoost CI via Bootstrapping
 # --------------------------
+# --------------------------
+# XGBoost CI via Bootstrapping
+# --------------------------
 def bootstrap_prediction(model, X_input, n_iterations=100):
     preds = []
-
-    # Ensure input is float and clean
-    X_input_clean = X_input.copy()
-    X_input_clean = X_input_clean.astype(float)
-    X_input_clean = X_input_clean[model.get_booster().feature_names]  # Ensure order matches training
-
     for _ in range(n_iterations):
-        pred = model.predict(X_input_clean)[0]
+        pred = model.predict(X_input)[0]
         preds.append(pred)
-
     preds = np.array(preds)
     mean_pred = np.mean(preds)
     lower = np.percentile(preds, 2.5)
     upper = np.percentile(preds, 97.5)
     return mean_pred, lower, upper
+
+
+# --------------------------
+# Prediction Based on XGBoost
+# --------------------------
+st.subheader("📈 Sales Prediction (XGBoost Only)")
+
+# Validate input data
+if input_data is None or input_data.isnull().any().any():
+    st.warning("⚠️ Please fix input errors before generating predictions.")
+else:
+    # Ensure numeric input
+    try:
+        input_data = input_data.astype("float64")
+    except Exception as e:
+        st.error(f"❌ Input data conversion failed: {e}")
+        st.stop()
+
+    # Run XGBoost prediction with confidence interval
+    try:
+        mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
+        st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
+        st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+    except Exception as e:
+        st.error(f"❌ Prediction failed: {e}")
+
+# def bootstrap_prediction(model, X_input, n_iterations=100):
+#     preds = []
+
+#     # Ensure input is float and clean
+#     X_input_clean = X_input.copy()
+#     X_input_clean = X_input_clean.astype(float)
+#     X_input_clean = X_input_clean[model.get_booster().feature_names]  # Ensure order matches training
+
+#     for _ in range(n_iterations):
+#         pred = model.predict(X_input_clean)[0]
+#         preds.append(pred)
+
+#     preds = np.array(preds)
+#     mean_pred = np.mean(preds)
+#     lower = np.percentile(preds, 2.5)
+#     upper = np.percentile(preds, 97.5)
+#     return mean_pred, lower, upper
 # def bootstrap_prediction(model, X_input, n_iterations=100):
 #     preds = []
 #     for _ in range(n_iterations):
@@ -252,42 +291,42 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
 # --------------------------
 st.subheader("📈 Sales Prediction XGBoost with Confidence Interval")
 
-X_train_const = sm.add_constant(x_train)
-ols_model = sm.OLS(y_train, X_train_const).fit()
-train_columns = X_train_const.columns
-# Clean and prepare fresh input each time
-input_base = pd.DataFrame([input_dict])[feature_list].copy()
+# X_train_const = sm.add_constant(x_train)
+# ols_model = sm.OLS(y_train, X_train_const).fit()
+# train_columns = X_train_const.columns
+# # Clean and prepare fresh input each time
+# input_base = pd.DataFrame([input_dict])[feature_list].copy()
 
-# Ensure numeric inputs only (for XGBoost)
-input_base = input_base.astype(float)
+# # Ensure numeric inputs only (for XGBoost)
+# input_base = input_base.astype(float)
 
-model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
+# model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
 
-if input_valid:
-    if model_choice == "Linear Regression":
-        try:
-            # Make a copy and prepare input for Linear Regression
-            input_lr = sm.add_constant(input_base, has_constant='add')
-            input_lr = input_lr.reindex(columns=train_columns, fill_value=0)
+# if input_valid:
+#     if model_choice == "Linear Regression":
+#         try:
+#             # Make a copy and prepare input for Linear Regression
+#             input_lr = sm.add_constant(input_base, has_constant='add')
+#             input_lr = input_lr.reindex(columns=train_columns, fill_value=0)
 
-            pred, lower, upper = predict_lr_with_ci(ols_model, input_lr, train_columns)
-            st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
-            st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-        except Exception as e:
-            st.error(f"❌ Linear Regression failed: {e}")
+#             pred, lower, upper = predict_lr_with_ci(ols_model, input_lr, train_columns)
+#             st.success(f"🔹 Predicted Sales (Linear Regression): **{pred:,.2f}**")
+#             st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+#         except Exception as e:
+#             st.error(f"❌ Linear Regression failed: {e}")
 
-    elif model_choice == "XGBoost":
-        try:
-            # Reorder input for XGBoost to match training features
-            input_xgb = input_base[feature_list].astype(float)
+#     elif model_choice == "XGBoost":
+#         try:
+#             # Reorder input for XGBoost to match training features
+#             input_xgb = input_base[feature_list].astype(float)
 
-            mean, lower, upper = bootstrap_prediction(xgb_model, input_xgb)
-            st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
-            st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
-        except Exception as e:
-            st.error(f"❌ XGBoost prediction failed: {e}")
-else:
-    st.warning("⚠️ Please fix input errors before generating predictions.")
+#             mean, lower, upper = bootstrap_prediction(xgb_model, input_xgb)
+#             st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
+#             st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+#         except Exception as e:
+#             st.error(f"❌ XGBoost prediction failed: {e}")
+# else:
+#     st.warning("⚠️ Please fix input errors before generating predictions.")
 
 # model_choice = st.selectbox("Choose a model:", ["Linear Regression", "XGBoost"], key="model_choice_main")
 # if input_valid:
