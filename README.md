@@ -6,7 +6,7 @@
 
 This project presents a machine learning solution for **retail demand forecasting** using historical sales data. Accurate forecasting is crucial in retail to maintain optimal inventory levels, reduce operational costs, and improve customer satisfaction. Poor forecasts can result in stockouts, overstocking, lost revenue, and logistical inefficiencies.
 
-You will develop regression-based models to predict store-level sales, leveraging both **Linear Regression** and **RGBoost**. The project emphasizes both technical implementation and practical business application.
+This project will use regression-based models to predict store-level sales, leveraging both **Linear Regression** and **RGBoost**. The project emphasizes both technical implementation and practical business application.
 
 ### 🔍 Key Objectives
 
@@ -112,6 +112,26 @@ Comparison between Linear Regression and RGBoost models is included in the noteb
 - Transactions: Total number of transactions processed at the store on that date
 - Holiday_Type: Holiday and event
 
+
+## 🌐 Streamlit App Description
+
+The project includes a deployed interactive Streamlit dashboard that allows users to explore, simulate, and forecast sales directly from the web interface.
+
+Key features of the app:
+
+📊 Interactive Inputs: Users can adjust inputs such as store number, promotions, transactions, and dates.
+
+🤖 Model Selection: Choose between Linear Regression and RGBoost to generate real-time sales predictions.
+
+🧩 Feature Insights: View key performance indicators (KPIs), model confidence intervals, and predicted sales trends.
+
+🌍 Dynamic Visualizations: Graphs highlight time series patterns, feature correlations, and category-level performance.
+
+🧠 Smart Defaults: Use store number to auto-fill location-based details (e.g., city/state).
+
+The app bridges technical forecasting with real-world decision-making for retail managers and analysts.
+
+➡️ Live Demo: (https://aiagentforecast-oh3kg9m78sszxoffvuzygh.streamlit.app/)
 
 
 ## 📘 Credits
