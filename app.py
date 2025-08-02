@@ -68,7 +68,7 @@ with st.expander("### ℹ️ How to Use This Dashboard", expanded=True):
 
 This dashboard allows you to:
 
-🔧 Enter real-world business inputs (such as promotions, transactions, holidays, and store details) using the sidebar to generate real-time sales predictions.
+🔧 Enter real-world business inputs (such as promotions, transactions, and store details) using the sidebar to generate real-time sales predictions.
 
 🤖 Make predictions and look at confidence levels of RGBoost model.
 
@@ -595,3 +595,4 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
