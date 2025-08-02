@@ -70,15 +70,13 @@ This dashboard allows you to:
 
 🔧 Enter real-world business inputs (such as promotions, transactions, holidays, and store details) using the sidebar to generate real-time sales predictions.
 
+🤖 Make predictions and look at confidence levels of RGBoost model.
+
 📈 Compare model performance using key evaluation metrics like RMSE, R², and MAE in a sortable table. Use the dropdown menu to visualize each metric interactively.
 
 🛒 Predict sales by product family to understand demand patterns across categories like Food, Beverages, Home, and more.
 
 🏬 Forecast sales for individual stores by selecting a specific store number and adjusting other inputs.
-
-🌟 Identify top-performing stores using visual insights based on predicted outcomes.
-
-🤖 Make predictions and look at confidence levels of RGBoost model.
 
 👉 Tip: To compare performance across stores, keep the Store Number fixed in the sidebar and scroll down to the “Top Performing Stores” section.
     """)
@@ -135,15 +133,12 @@ with st.sidebar.expander("🔧 Adjust Prediction Inputs", expanded=True):
     quarter = st.slider("Quarter", 1, 4, 3, key="slider_quarter")
     day = st.slider("Day", 1, 31, 15, key="slider_day")
     year = st.selectbox("Year", [2022, 2023, 2024, 2025, 2026, 2027, 2028])
-    state = st.selectbox("State", ["state_Pichincha", "state_Guayas", "state_Manabi"])
+    # state = st.selectbox("State", ["state_Pichincha", "state_Guayas", "state_Manabi"])
     season = st.selectbox("Season", ["MonthSeason_Summer", "MonthSeason_Winter", "MonthSeason_Spring"])
     weekpart = st.selectbox("Week Part", ["WeekPart_MidWeek", "WeekPart_Weekend"])
-    city = st.selectbox("City", [
-        "city_grouped_Cayambe", "city_grouped_Cuenca", "city_grouped_Guayaquil",
-        "city_grouped_Latacunga", "city_grouped_Machala", "city_grouped_Manta",
-        "city_grouped_Other", "city_grouped_Quito", "city_grouped_Riobamba",
-        "city_grouped_Santo Domingo"
-    ])
+    # city = st.selectbox("City", ["city_grouped_Cayambe", "city_grouped_Cuenca", "city_grouped_Guayaquil",
+    # "city_grouped_Latacunga", "city_grouped_Machala", "city_grouped_Manta","city_grouped_Other", "city_grouped_Quito", 
+    # "city_grouped_Riobamba","city_grouped_Santo Domingo"])
     holiday = st.selectbox("Holiday Type", [
         "holiday_type_Bridge", "holiday_type_Event", "holiday_type_Holiday",
         "holiday_type_NotHoliday", "holiday_type_Transfer", "holiday_type_Work Day"
@@ -166,6 +161,7 @@ if transactions < 0:
 
 if onpromotion > 500 and transactions < 50:
     st.sidebar.warning("⚠️ High promotions with very low transactions may be an outlier.")
+
 
 
 # --- Build Input Data ---
@@ -192,7 +188,7 @@ for k, v in numeric_inputs.items():
         st.warning(f"⚠️ '{k}' not found in feature list!")
 
 # One-hot categories
-for col in [season, state, weekpart, city, holiday, family]:
+for col in [season, weekpart, holiday, family]:
     if col in input_dict:
         input_dict[col] = 1
     else:
@@ -207,9 +203,9 @@ except Exception as e:
 
 # One-hot encodings
 input_dict[season] = 1
-input_dict[state] = 1
+#input_dict[state] = 1
 input_dict[weekpart] = 1
-input_dict[city] = 1
+#input_dict[city] = 1
 input_dict[holiday] = 1
 input_dict[family] = 1
 
@@ -254,7 +250,7 @@ def bootstrap_prediction(model, X_input, n_iterations=100):
 # --------------------------
 # Prediction Based on XGBoost
 # --------------------------
-st.subheader("📈 Sales Prediction (XGBoost Only)")
+st.subheader("📈 Sales Prediction using RGBoost Model")
 
 # Validate input data
 if input_data is None or input_data.isnull().any().any():
@@ -271,11 +267,10 @@ else:
     try:
         mean, lower, upper = bootstrap_prediction(xgb_model, input_data)
         st.success(f"🔸 Predicted Sales (XGBoost): **{mean:,.2f}**")
-        st.info(f"95% Confidence Interval: ({lower:,.2f}, {upper:,.2f})")
+        st.info(f"95% Confidence Interval: ({lower:,.2f},  {upper:,.2f})")
     except Exception as e:
         st.error(f"❌ Prediction failed: {e}")
 
-st.write("reached line 248")
 # # Load and display model metrics - Stopped Sanity check here
 with open("model_metrics.json", "r") as f:
     metrics = json.load(f)
@@ -334,7 +329,6 @@ fig = px.bar(
 
 # Show the interactive plot with legend toggling enabled by default
 st.plotly_chart(fig, use_container_width=True)
-st.write("✅ Reached line 326")
 
 # Predict Sales by product family
 # After existing input_dict is built and single prediction code
@@ -357,7 +351,7 @@ for fam in family_features:
 pred_df = pd.DataFrame(preds, columns=["Family", "Predicted Sales"]).sort_values("Predicted Sales", ascending=True)
 
 st.markdown("### 📊 Predicted Sales by Product Category")
-st.caption("This chart shows predicted unit sales for each product family. Hover over the bars to see exact values.")
+st.caption("This chart shows predicted unit sales for each product category. Hover over the bars to see exact values.")
 
 fig = px.bar(pred_df, 
              x="Predicted Sales", 
@@ -375,12 +369,12 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-st.markdown("✅ **Tip**: You can compare product family to identify top-performing categories based on predicted demand.")
+st.markdown("✅ **Tip**: Compare product categories to find those with the highest predicted demand.")
 
 
 # Multiple KPI metrics
 st.markdown('---')
-st.subheader('📊 Key Performance Indicators')
+st.markdown("### 📊 Key Performance Indicators")
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -431,13 +425,13 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 ])
 
 with tab1:
-    st.subheader("📊 Impact of Promotions on Sales")
+    st.subheader(" Impact of Promotions on Sales")
     # Aggregate average sales by promotion levels
     promo_impact = df1.groupby("onpromotion")["sales"].mean().reset_index()
 
     fig = px.bar(promo_impact, x="onpromotion", y="sales",
                  labels={"onpromotion": "Items on Promotion", "sales": "Average Sales"},
-                 title="📈 Average Sales vs. Number of Items on Promotion")
+                 title="📈 Average Sales Based on Promotional Volume")
     st.plotly_chart(fig, use_container_width=True)
 
 with tab2:
@@ -502,18 +496,6 @@ with tab3:   # Stopped here
 with tab4:
     # Create a correlation heatmap
         col1, col2 = st.columns(2)
-# ------------------------------
-        st.set_page_config(page_title="Sales Correlation Dashboard", layout="wide")
-        st.markdown("""
-            <style>
-            .main-header {
-                font-size: 36px;
-                font-weight: bold;
-                color: #333333;
-                margin-top: 10px;
-            }
-            </style>
-        """, unsafe_allow_html=True)
 
         col1, col2 = st.columns([0.4, 6])
         with col1:
@@ -523,16 +505,14 @@ with tab4:
 
         st.markdown("Use this dashboard to explore relationships between key numerical features and `sales`.")
 
-        # ------------------------------
+     
         # Select Columns to Include
-        # ------------------------------
         numeric_cols = df1.select_dtypes(include="number").columns.tolist()
         default_cols = ['sales', 'onpromotion', 'transactions', 'month', 'weekOfYear', 'quarter', 'day']
         selected_cols = st.multiselect("Select features to analyze:", numeric_cols, default=default_cols)
 
-        # ------------------------------
         # Compute Correlation
-        # ------------------------------
+
         if len(selected_cols) >= 2:
             corr_df = df1[selected_cols].corr()
 
@@ -541,8 +521,7 @@ with tab4:
                 corr_df,
                 text_auto=True,
                 color_continuous_scale="RdBu_r",
-                aspect="auto",
-                title="🔍 Correlation Heatmap"
+                aspect="auto"
             )
 
             # Show heatmap
@@ -552,7 +531,7 @@ with tab4:
             # Show top correlated features with sales
             if "sales" in corr_df.columns:
                 top_corr = corr_df["sales"].drop("sales").sort_values(key=abs, ascending=False)
-                with st.expander("🔑 Top Features Correlated with Sales", expanded=True):
+                with st.expander("🔑 Key Features Driving Sales Quantity", expanded=True):
                     st.dataframe(top_corr.to_frame(name="Correlation").style.format("{:.2f}"))
         else:
             st.warning("Please select at least 2 numeric columns to build the correlation heatmap.")
@@ -594,7 +573,7 @@ with tab5:
                 y='sales',
                 markers=True,
                 labels={'weekOfYear': 'Week of Year', 'sales': 'Total Sales'},
-                title="Weekly Sales (Filtered)"
+                title="Weekly Sales"
             )
             st.plotly_chart(fig_week, use_container_width=True)
 
@@ -610,9 +589,9 @@ with tab5:
                 y='sales',
                 color='season',
                 labels={'season': 'Season', 'sales': 'Total Sales'},
-                title="Sales by Season (Filtered)"
+                title="Sales by Season"
             )
             st.plotly_chart(fig_season, use_container_width=True)
 
-st.markdown("✅ **Tip**:Change store_nbr, onpromotion and oil price to see weekly and seasonl fluctuations")
+st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
