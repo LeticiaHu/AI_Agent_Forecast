@@ -76,9 +76,8 @@ This dashboard allows you to:
 
 🛒 Predict sales by product family to understand demand patterns across categories like Food, Beverages, Home, and more.
 
-🏬 Forecast sales for individual stores by selecting a specific store number and adjusting other inputs.
+🏬 Forecast sales for individual stores by selecting a specific store number and adjusting other inputs. 
 
-👉 Tip: To compare performance across stores, keep the Store Number fixed in the sidebar and scroll down to the “Top Performing Stores” section.
     """)
 
 
@@ -592,6 +591,7 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
