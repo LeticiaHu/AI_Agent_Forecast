@@ -232,10 +232,12 @@ def predict_lr_with_ci(model, X_input, train_columns):
 # --------------------------
 # XGBoost CI via Bootstrapping
 # --------------------------
-def bootstrap_prediction(model, X_input, n_iterations=100):
+def bootstrap_prediction(model, X_input, n_iterations=100, noise_std=0.01):
     preds = []
     for _ in range(n_iterations):
-        pred = model.predict(X_input)[0]
+        # Add small Gaussian noise to each input
+        noisy_input = X_input.copy() + np.random.normal(0, noise_std, X_input.shape)
+        pred = model.predict(noisy_input)[0]
         preds.append(pred)
     preds = np.array(preds)
     mean_pred = np.mean(preds)
@@ -591,6 +593,7 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
