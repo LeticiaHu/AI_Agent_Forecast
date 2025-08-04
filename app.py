@@ -188,7 +188,7 @@ for k, v in numeric_inputs.items():
         st.warning(f"⚠️ '{k}' not found in feature list!")
 
 # One-hot categories
-for col in [season, weekpart, holiday, family]:
+for col in [weekpart, holiday, family]:
     if col in input_dict:
         input_dict[col] = 1
     else:
@@ -592,5 +592,6 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
