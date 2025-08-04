@@ -96,7 +96,7 @@ Cross-validation scores
 Comparison between Linear Regression and RGBoost models is included in the notebook.
 
 
-## Description of Columns that will be used for analysis
+## Description of Columns used for analysis
 
 - Id: Unique ID combining date, store_nbr, and family (product category)
 - Date: The date of each obseravtion
