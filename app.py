@@ -134,7 +134,7 @@ with st.sidebar.expander("🔧 Adjust Prediction Inputs", expanded=True):
     day = st.slider("Day", 1, 31, 15, key="slider_day")
     year = st.selectbox("Year", [2022, 2023, 2024, 2025, 2026, 2027, 2028])
     # state = st.selectbox("State", ["state_Pichincha", "state_Guayas", "state_Manabi"])
-    season = st.selectbox("Season", ["MonthSeason_Summer", "MonthSeason_Winter", "MonthSeason_Spring"])
+    # season = st.selectbox("Season", ["MonthSeason_Summer", "MonthSeason_Winter", "MonthSeason_Spring"])
     weekpart = st.selectbox("Week Part", ["WeekPart_MidWeek", "WeekPart_Weekend"])
     # city = st.selectbox("City", ["city_grouped_Cayambe", "city_grouped_Cuenca", "city_grouped_Guayaquil",
     # "city_grouped_Latacunga", "city_grouped_Machala", "city_grouped_Manta","city_grouped_Other", "city_grouped_Quito", 
@@ -202,7 +202,7 @@ except Exception as e:
     st.stop()
 
 # One-hot encodings
-input_dict[season] = 1
+# input_dict[season] = 1
 #input_dict[state] = 1
 input_dict[weekpart] = 1
 #input_dict[city] = 1
@@ -211,9 +211,6 @@ input_dict[family] = 1
 
 # Create DataFrame in correct feature order
 input_data = pd.DataFrame([input_dict])[feature_list]
-
-# Create DataFrame in correct feature order
-# input_data = pd.DataFrame([input_dict])[feature_list]
 
 # Simulate prediction uncertainty using bootstrapping
 # --------------------------
@@ -595,4 +592,5 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
