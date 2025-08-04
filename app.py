@@ -129,8 +129,8 @@ with st.sidebar.expander("🔧 Adjust Prediction Inputs", expanded=True):
                                 help="Store identifier (1–100), key='input_store'")
 
     month = st.slider("Month", 1, 12, 7, key="slider_month")
-    weekOfYear = st.slider("Week of Year", 1, 52, 28, key="slider_week")
-    quarter = st.slider("Quarter", 1, 4, 3, key="slider_quarter")
+    # weekOfYear = st.slider("Week of Year", 1, 52, 28, key="slider_week")
+    # quarter = st.slider("Quarter", 1, 4, 3, key="slider_quarter")
     day = st.slider("Day", 1, 31, 15, key="slider_day")
     year = st.selectbox("Year", [2022, 2023, 2024, 2025, 2026, 2027, 2028])
     # state = st.selectbox("State", ["state_Pichincha", "state_Guayas", "state_Manabi"])
@@ -177,8 +177,8 @@ numeric_inputs = {
     "transactions": transactions,
     "month": month,
     "year": year,
-    "weekOfYear": weekOfYear,
-    "quarter": quarter,
+    # "weekOfYear": weekOfYear,
+    # "quarter": quarter,
     "day": day
 }
 for k, v in numeric_inputs.items():
@@ -592,6 +592,7 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
