@@ -312,7 +312,7 @@ st.dataframe(metrics_df.style.format({
 # # Show metrics on a bar chart
 # # Select metric for visualization by using a dropdown menu
 st.subheader("Choose the metric to visualize:")
-metric = st.selectbox("Select Metric to Visualize", ["RMSE", "R2", "MAE"])
+metric = st.selectbox("Select Metric to Visualize Performance of Model", ["RMSE", "R2", "MAE"])
 
 # Assuming metrics_df has columns: Model, Dataset (train/test), and metric columns
 fig = px.bar(
@@ -593,6 +593,7 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
