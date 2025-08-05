@@ -96,16 +96,16 @@ def load_models():
     xgb_model.load_model("xgb_sales_model.json")
     linear_model = joblib.load("linear_model.pkl")
     feature_list = joblib.load("model_features.pkl")
-    x_train = pd.read_csv("X_train.csv.gz").astype(float)
-    y_train = pd.read_csv("y_train.csv.gz").astype(float)
+    # x_train = pd.read_csv("X_train.csv.gz").astype(float)
+    # y_train = pd.read_csv("y_train.csv.gz").astype(float)
     df1 = pd.read_csv("processed_sales_data.csv.gz")
 
     # Convert only numeric columns
     for col in df1.select_dtypes(include=["int64", "float64", "bool"]).columns:
         df1[col] = pd.to_numeric(df1[col], errors="coerce")
         
-    return xgb_model, linear_model, feature_list, x_train, y_train, df1
-xgb_model, linear_model, feature_list, x_train, y_train, df1 = load_models()
+    return xgb_model, linear_model, feature_list, df1
+xgb_model, linear_model, feature_list, df1 = load_models()
 
 # Sidebar for inputs
 st.sidebar.header("Input Features")
@@ -214,20 +214,20 @@ input_data = pd.DataFrame([input_dict])[feature_list]
 # Simulate prediction uncertainty using bootstrapping
 # --------------------------
 # Linear Regression CI
-def predict_lr_with_ci(model, X_input, train_columns):
-    # Add constant column if needed
-    X_input_const = sm.add_constant(X_input, has_constant='add')
+# def predict_lr_with_ci(model, X_input, train_columns):
+#     # Add constant column if needed
+#     X_input_const = sm.add_constant(X_input, has_constant='add')
 
-    # Reorder and match columns to training data
-    X_input_const = X_input_const.reindex(columns=train_columns, fill_value=0)
+#     # Reorder and match columns to training data
+#     X_input_const = X_input_const.reindex(columns=train_columns, fill_value=0)
 
-    prediction = model.get_prediction(X_input_const)
-    summary = prediction.summary_frame(alpha=0.05)
+#     prediction = model.get_prediction(X_input_const)
+#     summary = prediction.summary_frame(alpha=0.05)
 
-    pred_mean = summary["mean"].values[0]
-    lower = summary["obs_ci_lower"].values[0]
-    upper = summary["obs_ci_upper"].values[0]
-    return pred_mean, lower, upper
+#     pred_mean = summary["mean"].values[0]
+#     lower = summary["obs_ci_lower"].values[0]
+#     upper = summary["obs_ci_upper"].values[0]
+#     return pred_mean, lower, upper
     
 # --------------------------
 # XGBoost CI via Bootstrapping
@@ -593,6 +593,7 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
