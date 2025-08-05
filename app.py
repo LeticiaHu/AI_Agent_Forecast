@@ -85,7 +85,7 @@ col1, col2 = st.columns([1, 8])  # adjust ratio as needed
 with col1:
     st.image("Favorita.png", width=100)
 with col2:
-    st.markdown('<h2 class="main-header"> Sales Prediction Dashboard</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="main-header"> Unit Sales Demand Forecast </h2>', unsafe_allow_html=True)
 st.markdown("### 🚀 Real-time Business Forecast for Sales Demand")
 st.caption("Use the sidebar to enter input values.")
 
@@ -593,6 +593,7 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
