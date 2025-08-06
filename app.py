@@ -486,8 +486,6 @@ with tab4:
 
 with tab5:
     # Define get_season() 
-    with tab5:
-    # Define get_season() 
     def get_season(month):
         if month in [12, 1, 2]:
             return "Winter"
@@ -717,6 +715,7 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
