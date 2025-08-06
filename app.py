@@ -98,7 +98,7 @@ def load_models():
     feature_list = joblib.load("model_features.pkl")
     # x_train = pd.read_csv("X_train.csv.gz").astype(float)
     # y_train = pd.read_csv("y_train.csv.gz").astype(float)
-    df1 = pd.read_csv("processed_sales_data.csv.gz")
+    df1 = pd.read_csv("processed_sales_data_small.csv.gz")
 
     # Convert only numeric columns
     for col in df1.select_dtypes(include=["int64", "float64", "bool"]).columns:
@@ -593,6 +593,7 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
