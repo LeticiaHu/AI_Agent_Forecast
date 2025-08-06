@@ -12,7 +12,7 @@ import json
 
 st.set_page_config(
     page_title="Sales Forecast Dashboard",
-    layout="wide",  # or "centered" for a tighter layout
+    layout="wide", 
     initial_sidebar_state="expanded")
 
 # Custom CSS for better styling
@@ -78,14 +78,15 @@ This dashboard allows you to:
 
 🏬 Forecast sales for individual stores by selecting a specific store number and adjusting other inputs. 
 
-    """)
+🌤 Examine seasonal variations in our time series, blending historical results with projected outcomes."
 
+    """)
 
 col1, col2 = st.columns([1, 8])  # adjust ratio as needed
 with col1:
     st.image("Favorita.png", width=100)
 with col2:
-    st.markdown('<h2 class="main-header"> Unit Sales Demand Forecast </h2>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header"> Unit Sales Demand Forecast </h1>', unsafe_allow_html=True)
 st.markdown("### 🚀 Real-time Business Forecast for Sales Demand")
 st.caption("Use the sidebar to enter input values.")
 
@@ -96,8 +97,6 @@ def load_models():
     xgb_model.load_model("xgb_sales_model.json")
     linear_model = joblib.load("linear_model.pkl")
     feature_list = joblib.load("model_features.pkl")
-    # x_train = pd.read_csv("X_train.csv.gz").astype(float)
-    # y_train = pd.read_csv("y_train.csv.gz").astype(float)
     df1 = pd.read_csv("processed_sales_data_small.csv.gz")
 
     # Convert only numeric columns
@@ -128,16 +127,9 @@ with st.sidebar.expander("🔧 Adjust Prediction Inputs", expanded=True):
                                 help="Store identifier (1–100), key='input_store'")
 
     month = st.slider("Month", 1, 12, 7, key="slider_month")
-    # weekOfYear = st.slider("Week of Year", 1, 52, 28, key="slider_week")
-    # quarter = st.slider("Quarter", 1, 4, 3, key="slider_quarter")
     day = st.slider("Day", 1, 31, 15, key="slider_day")
     year = st.selectbox("Year", [2022, 2023, 2024, 2025, 2026, 2027, 2028])
-    # state = st.selectbox("State", ["state_Pichincha", "state_Guayas", "state_Manabi"])
-    # season = st.selectbox("Season", ["MonthSeason_Summer", "MonthSeason_Winter", "MonthSeason_Spring"])
     weekpart = st.selectbox("Week Part", ["WeekPart_MidWeek", "WeekPart_Weekend"])
-    # city = st.selectbox("City", ["city_grouped_Cayambe", "city_grouped_Cuenca", "city_grouped_Guayaquil",
-    # "city_grouped_Latacunga", "city_grouped_Machala", "city_grouped_Manta","city_grouped_Other", "city_grouped_Quito", 
-    # "city_grouped_Riobamba","city_grouped_Santo Domingo"])
     holiday = st.selectbox("Holiday Type", [
         "holiday_type_Bridge", "holiday_type_Event", "holiday_type_Holiday",
         "holiday_type_NotHoliday", "holiday_type_Transfer", "holiday_type_Work Day"
@@ -161,8 +153,6 @@ if transactions < 0:
 if onpromotion > 500 and transactions < 50:
     st.sidebar.warning("⚠️ High promotions with very low transactions may be an outlier.")
 
-
-
 # --- Build Input Data ---
 # Initialize input_dict with all features
 input_dict = {col: 0 for col in feature_list}
@@ -176,8 +166,6 @@ numeric_inputs = {
     "transactions": transactions,
     "month": month,
     "year": year,
-    # "weekOfYear": weekOfYear,
-    # "quarter": quarter,
     "day": day
 }
 for k, v in numeric_inputs.items():
@@ -201,10 +189,7 @@ except Exception as e:
     st.stop()
 
 # One-hot encodings
-# input_dict[season] = 1
-#input_dict[state] = 1
 input_dict[weekpart] = 1
-#input_dict[city] = 1
 input_dict[holiday] = 1
 input_dict[family] = 1
 
@@ -212,23 +197,6 @@ input_dict[family] = 1
 input_data = pd.DataFrame([input_dict])[feature_list]
 
 # Simulate prediction uncertainty using bootstrapping
-# --------------------------
-# Linear Regression CI
-# def predict_lr_with_ci(model, X_input, train_columns):
-#     # Add constant column if needed
-#     X_input_const = sm.add_constant(X_input, has_constant='add')
-
-#     # Reorder and match columns to training data
-#     X_input_const = X_input_const.reindex(columns=train_columns, fill_value=0)
-
-#     prediction = model.get_prediction(X_input_const)
-#     summary = prediction.summary_frame(alpha=0.05)
-
-#     pred_mean = summary["mean"].values[0]
-#     lower = summary["obs_ci_lower"].values[0]
-#     upper = summary["obs_ci_upper"].values[0]
-#     return pred_mean, lower, upper
-    
 # --------------------------
 # XGBoost CI via Bootstrapping
 # --------------------------
@@ -269,7 +237,7 @@ else:
     except Exception as e:
         st.error(f"❌ Prediction failed: {e}")
 
-# # Load and display model metrics - Stopped Sanity check here
+# Load and display model metrics 
 with open("model_metrics.json", "r") as f:
     metrics = json.load(f)
 
@@ -285,16 +253,16 @@ for col in ["RMSE", "R2", "MAE"]:
     metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
 
 # # --- Convert nested dict to DataFrame ---
-data = []
-for model_name, splits in metrics.items():
-    for split_name, metric_values in splits.items():
-        row = {
-            "Model": model_name,
-            "Dataset": split_name
-        }
-        row.update(metric_values)
-        data.append(row)
-metrics_df = pd.DataFrame(data)
+# data = []
+# for model_name, splits in metrics.items():
+#     for split_name, metric_values in splits.items():
+#         row = {
+#             "Model": model_name,
+#             "Dataset": split_name
+#         }
+#         row.update(metric_values)
+#         data.append(row)
+# metrics_df = pd.DataFrame(data)
 
 # --- Ensure all metric columns are numeric ---
 for col in ["RMSE", "R2", "MAE"]:
@@ -693,6 +661,7 @@ else:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
