@@ -78,7 +78,7 @@ This dashboard allows you to:
 
 🏬 Forecast sales for individual stores by selecting a specific store number and adjusting other inputs. 
 
-🌤 Examine seasonal variations in our time series, blending historical results with projected outcomes."
+🌤 Examine seasonal variations in our time series, blending historical results with projected outcomes.
 
     """)
 
@@ -240,7 +240,8 @@ else:
 # Load and display model metrics 
 with open("model_metrics.json", "r") as f:
     metrics = json.load(f)
-
+    
+# --- Convert dict to DataFrame
 data = []
 for model_name, splits in metrics.items():
     for split_name, metric_values in splits.items():
@@ -248,22 +249,7 @@ for model_name, splits in metrics.items():
         row.update(metric_values)
         data.append(row)
 
-metrics_df = pd.DataFrame(data)
-for col in ["RMSE", "R2", "MAE"]:
-    metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
-
-# # --- Convert nested dict to DataFrame ---
-# data = []
-# for model_name, splits in metrics.items():
-#     for split_name, metric_values in splits.items():
-#         row = {
-#             "Model": model_name,
-#             "Dataset": split_name
-#         }
-#         row.update(metric_values)
-#         data.append(row)
-# metrics_df = pd.DataFrame(data)
-
+metrics_df = pd.DataFrame(data)   
 # --- Ensure all metric columns are numeric ---
 for col in ["RMSE", "R2", "MAE"]:
     if col in metrics_df.columns:
@@ -293,11 +279,10 @@ fig = px.bar(
     labels={metric: metric, "Model": "Model Name"}
 ) 
 
-# Show the interactive plot with legend toggling enabled by default
+# Show the interactive plot with legend 
 st.plotly_chart(fig, use_container_width=True)
 
 # Predict Sales by product family
-# After existing input_dict is built and single prediction code
 # Prepare predictions for all families dynamically
 base_input = input_dict.copy()
 family_features = [f for f in feature_list if f.startswith("family_grouped_")]
@@ -316,6 +301,7 @@ for fam in family_features:
 
 pred_df = pd.DataFrame(preds, columns=["Family", "Predicted Sales"]).sort_values("Predicted Sales", ascending=True)
 
+st.markdown('---')
 st.markdown("### 📊 Predicted Sales by Product Category")
 st.caption("This chart shows predicted unit sales for each product category. Hover over the bars to see exact values.")
 
@@ -335,7 +321,7 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-st.markdown("✅ **Tip**: Compare product categories to find those with the highest predicted demand.")
+st.markdown("✅ **Tip**: Compare product categories to find those with the highest predicted demand. Month and Day impacts Product Category.")
 
 
 # Multiple KPI metrics
@@ -344,8 +330,7 @@ st.markdown("### 📊 Key Performance Indicators")
 
 col1, col2, col3, col4 = st.columns(4)
 
-# Reconstruct date from year, month, day
-# Ensure correct types
+# Reconstruct date from year, month, day since columns were removed from original dataset after creating time based columns
 df1['year'] = df1['year'].astype(int)
 df1['month'] = df1['month'].astype(int)
 df1['day'] = df1['day'].astype(int)
@@ -430,7 +415,7 @@ with tab2:
                    labels={"onpromotion": "Items on Promotion", "sales": "Average Sales"})
     st.plotly_chart(fig2, use_container_width=True)
 
-with tab3:   # Stopped here
+with tab3:  
     # Compare Predicted vs. Actual Sales
     st.subheader("Actual vs Predicted Sales Over Time")
     try:
@@ -468,9 +453,7 @@ with tab4:
             st.image("Favorita.png", width=100)
         with col2:
             st.markdown('<h2 class="main-header"> Correlation Heatmap Dashboard</h2>', unsafe_allow_html=True)
-
         st.markdown("Use this dashboard to explore relationships between key numerical features and `sales`.")
-
      
         # Select Columns to Include
         numeric_cols = df1.select_dtypes(include="number").columns.tolist()
@@ -478,7 +461,6 @@ with tab4:
         selected_cols = st.multiselect("Select features to analyze:", numeric_cols, default=default_cols)
 
         # Compute Correlation
-
         if len(selected_cols) >= 2:
             corr_df = df1[selected_cols].corr()
 
@@ -493,7 +475,7 @@ with tab4:
             # Show heatmap
             with st.expander("📊 Correlation Heatmap", expanded=True):
                 st.plotly_chart(fig, use_container_width=True)
-
+                
             # Show top correlated features with sales
             if "sales" in corr_df.columns:
                 top_corr = corr_df["sales"].drop("sales").sort_values(key=abs, ascending=False)
@@ -503,7 +485,7 @@ with tab4:
             st.warning("Please select at least 2 numeric columns to build the correlation heatmap.")
 
 with tab5:
-    # Step 1: Define get_season() BEFORE using it
+    # Define get_season() 
     def get_season(month):
         if month in [12, 1, 2]:
             return "Winter"
@@ -514,7 +496,7 @@ with tab5:
         else:
             return "Fall"
             
-    # Step 3: Add season column after filtering
+    # Add season column after filtering
 filtered_df = df1[
     (df1['store_nbr'] == store_nbr) &
     (df1['onpromotion'].between(onpromotion - 10, onpromotion + 10)) &
@@ -527,7 +509,7 @@ if filtered_df.empty:
     # Build base input for prediction
     base_input = input_dict.copy()
 
-    # Get weeks and months for prediction
+    # mapping season to correct months
     weeks = list(range(1, 53))
     seasons = {12: "Winter", 1: "Winter", 2: "Winter",
                3: "Spring", 4: "Spring", 5: "Spring",
@@ -614,53 +596,9 @@ else:
         )
         st.plotly_chart(fig_season, use_container_width=True)
 
-    # # Step 2: Filter the DataFrame based on sidebar inputs
-    # filtered_df = df1[
-    #     (df1['store_nbr'] == store_nbr) &
-    #     (df1['onpromotion'].between(onpromotion - 50, onpromotion + 50)) &
-    #     (df1['dcoilwtico'].between(dcoilwtico - 20, dcoilwtico + 20))
-    # ].copy()
-
-    # # Step 3: Add season column after filtering
-    # filtered_df['season'] = filtered_df['month'].apply(get_season)
-
-    # # Step 4: Check for empty results
-    # if filtered_df.empty:
-    #     st.warning("⚠️ No data matches the selected filters.")
-    # else:
-    #     col1, col2 = st.columns(2)
-
-    #     with col1:
-    #         st.subheader("📅 Weekly Sales Trend")
-    #         weekly_sales = filtered_df.groupby('weekOfYear')['sales'].sum().reset_index()
-    #         fig_week = px.line(
-    #             weekly_sales,
-    #             x='weekOfYear',
-    #             y='sales',
-    #             markers=True,
-    #             labels={'weekOfYear': 'Week of Year', 'sales': 'Total Sales'},
-    #             title="Weekly Sales"
-    #         )
-    #         st.plotly_chart(fig_week, use_container_width=True)
-
-    #     with col2:
-    #         st.subheader("🌤 Seasonal Sales Overview")
-    #         seasonal_sales = filtered_df.groupby('season')['sales'].sum().reset_index()
-    #         season_order = ['Winter', 'Spring', 'Summer', 'Fall']
-    #         seasonal_sales['season'] = pd.Categorical(seasonal_sales['season'], categories=season_order, ordered=True)
-    #         seasonal_sales = seasonal_sales.sort_values('season')
-    #         fig_season = px.bar(
-    #             seasonal_sales,
-    #             x='season',
-    #             y='sales',
-    #             color='season',
-    #             labels={'season': 'Season', 'sales': 'Total Sales'},
-    #             title="Sales by Season"
-    #         )
-    #         st.plotly_chart(fig_season, use_container_width=True)
-
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
