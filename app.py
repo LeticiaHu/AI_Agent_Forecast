@@ -545,54 +545,155 @@ with tab5:
             return "Summer"
         else:
             return "Fall"
-
-    # Step 2: Filter the DataFrame based on sidebar inputs
-    filtered_df = df1[
-        (df1['store_nbr'] == store_nbr) &
-        (df1['onpromotion'].between(onpromotion - 10, onpromotion + 10)) &
-        (df1['dcoilwtico'].between(dcoilwtico - 5, dcoilwtico + 5))
-    ].copy()
-
+            
     # Step 3: Add season column after filtering
+filtered_df = df1[
+    (df1['store_nbr'] == store_nbr) &
+    (df1['onpromotion'].between(onpromotion - 10, onpromotion + 10)) &
+    (df1['dcoilwtico'].between(dcoilwtico - 5, dcoilwtico + 5))
+].copy()
+
+if filtered_df.empty:
+    st.warning("⚠️ No historical data matches the selected filters. Showing model predictions instead.")
+
+    # Build base input for prediction
+    base_input = input_dict.copy()
+
+    # Get weeks and months for prediction
+    weeks = list(range(1, 53))
+    seasons = {12: "Winter", 1: "Winter", 2: "Winter",
+               3: "Spring", 4: "Spring", 5: "Spring",
+               6: "Summer", 7: "Summer", 8: "Summer",
+               9: "Fall", 10: "Fall", 11: "Fall"}
+
+    # Weekly sales prediction
+    weekly_preds = []
+    for w in weeks:
+        temp_input = base_input.copy()
+        if "weekOfYear" in feature_list:
+            temp_input["weekOfYear"] = w
+        df_input = pd.DataFrame([temp_input])[feature_list]
+        pred_sales = xgb_model.predict(df_input)[0]
+        weekly_preds.append({"weekOfYear": w, "sales": pred_sales})
+
+    weekly_sales = pd.DataFrame(weekly_preds)
+
+    fig_week = px.line(
+        weekly_sales,
+        x='weekOfYear',
+        y='sales',
+        markers=True,
+        labels={'weekOfYear': 'Week of Year', 'sales': 'Predicted Sales'},
+        title="📅 Predicted Weekly Sales"
+    )
+    st.plotly_chart(fig_week, use_container_width=True)
+
+    # Seasonal sales prediction
+    seasonal_preds = []
+    for m in range(1, 13):
+        temp_input = base_input.copy()
+        temp_input["month"] = m
+        df_input = pd.DataFrame([temp_input])[feature_list]
+        pred_sales = xgb_model.predict(df_input)[0]
+        seasonal_preds.append({"season": seasons[m], "sales": pred_sales})
+
+    seasonal_sales = pd.DataFrame(seasonal_preds).groupby("season")["sales"].sum().reset_index()
+    season_order = ['Winter', 'Spring', 'Summer', 'Fall']
+    seasonal_sales['season'] = pd.Categorical(seasonal_sales['season'], categories=season_order, ordered=True)
+    seasonal_sales = seasonal_sales.sort_values('season')
+
+    fig_season = px.bar(
+        seasonal_sales,
+        x='season',
+        y='sales',
+        color='season',
+        labels={'season': 'Season', 'sales': 'Predicted Sales'},
+        title="🌤 Predicted Seasonal Sales"
+    )
+    st.plotly_chart(fig_season, use_container_width=True)
+
+else:
+    # Your original historical plotting logic here
     filtered_df['season'] = filtered_df['month'].apply(get_season)
 
-    # Step 4: Check for empty results
-    if filtered_df.empty:
-        st.warning("⚠️ No data matches the selected filters.")
-    else:
-        col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("📅 Weekly Sales Trend")
+        weekly_sales = filtered_df.groupby('weekOfYear')['sales'].sum().reset_index()
+        fig_week = px.line(
+            weekly_sales,
+            x='weekOfYear',
+            y='sales',
+            markers=True,
+            labels={'weekOfYear': 'Week of Year', 'sales': 'Total Sales'},
+            title="Weekly Sales"
+        )
+        st.plotly_chart(fig_week, use_container_width=True)
 
-        with col1:
-            st.subheader("📅 Weekly Sales Trend")
-            weekly_sales = filtered_df.groupby('weekOfYear')['sales'].sum().reset_index()
-            fig_week = px.line(
-                weekly_sales,
-                x='weekOfYear',
-                y='sales',
-                markers=True,
-                labels={'weekOfYear': 'Week of Year', 'sales': 'Total Sales'},
-                title="Weekly Sales"
-            )
-            st.plotly_chart(fig_week, use_container_width=True)
+    with col2:
+        st.subheader("🌤 Seasonal Sales Overview")
+        seasonal_sales = filtered_df.groupby('season')['sales'].sum().reset_index()
+        season_order = ['Winter', 'Spring', 'Summer', 'Fall']
+        seasonal_sales['season'] = pd.Categorical(seasonal_sales['season'], categories=season_order, ordered=True)
+        seasonal_sales = seasonal_sales.sort_values('season')
+        fig_season = px.bar(
+            seasonal_sales,
+            x='season',
+            y='sales',
+            color='season',
+            labels={'season': 'Season', 'sales': 'Total Sales'},
+            title="Sales by Season"
+        )
+        st.plotly_chart(fig_season, use_container_width=True)
 
-        with col2:
-            st.subheader("🌤 Seasonal Sales Overview")
-            seasonal_sales = filtered_df.groupby('season')['sales'].sum().reset_index()
-            season_order = ['Winter', 'Spring', 'Summer', 'Fall']
-            seasonal_sales['season'] = pd.Categorical(seasonal_sales['season'], categories=season_order, ordered=True)
-            seasonal_sales = seasonal_sales.sort_values('season')
-            fig_season = px.bar(
-                seasonal_sales,
-                x='season',
-                y='sales',
-                color='season',
-                labels={'season': 'Season', 'sales': 'Total Sales'},
-                title="Sales by Season"
-            )
-            st.plotly_chart(fig_season, use_container_width=True)
+    # # Step 2: Filter the DataFrame based on sidebar inputs
+    # filtered_df = df1[
+    #     (df1['store_nbr'] == store_nbr) &
+    #     (df1['onpromotion'].between(onpromotion - 50, onpromotion + 50)) &
+    #     (df1['dcoilwtico'].between(dcoilwtico - 20, dcoilwtico + 20))
+    # ].copy()
+
+    # # Step 3: Add season column after filtering
+    # filtered_df['season'] = filtered_df['month'].apply(get_season)
+
+    # # Step 4: Check for empty results
+    # if filtered_df.empty:
+    #     st.warning("⚠️ No data matches the selected filters.")
+    # else:
+    #     col1, col2 = st.columns(2)
+
+    #     with col1:
+    #         st.subheader("📅 Weekly Sales Trend")
+    #         weekly_sales = filtered_df.groupby('weekOfYear')['sales'].sum().reset_index()
+    #         fig_week = px.line(
+    #             weekly_sales,
+    #             x='weekOfYear',
+    #             y='sales',
+    #             markers=True,
+    #             labels={'weekOfYear': 'Week of Year', 'sales': 'Total Sales'},
+    #             title="Weekly Sales"
+    #         )
+    #         st.plotly_chart(fig_week, use_container_width=True)
+
+    #     with col2:
+    #         st.subheader("🌤 Seasonal Sales Overview")
+    #         seasonal_sales = filtered_df.groupby('season')['sales'].sum().reset_index()
+    #         season_order = ['Winter', 'Spring', 'Summer', 'Fall']
+    #         seasonal_sales['season'] = pd.Categorical(seasonal_sales['season'], categories=season_order, ordered=True)
+    #         seasonal_sales = seasonal_sales.sort_values('season')
+    #         fig_season = px.bar(
+    #             seasonal_sales,
+    #             x='season',
+    #             y='sales',
+    #             color='season',
+    #             labels={'season': 'Season', 'sales': 'Total Sales'},
+    #             title="Sales by Season"
+    #         )
+    #         st.plotly_chart(fig_season, use_container_width=True)
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
