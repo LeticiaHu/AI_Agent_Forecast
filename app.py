@@ -134,7 +134,7 @@ with st.sidebar.expander("🔧 Adjust Prediction Inputs", expanded=True):
         "holiday_type_Bridge", "holiday_type_Event", "holiday_type_Holiday",
         "holiday_type_NotHoliday", "holiday_type_Transfer", "holiday_type_Work Day"
     ])
-    family = st.selectbox("Family Type", [
+    family = st.selectbox("Product Category", [
         "family_grouped_Beverages", "family_grouped_Food",
         "family_grouped_Home", "family_grouped_Other", "family_grouped_personal"
     ])
@@ -605,6 +605,7 @@ with tab5:
 
 st.markdown("✅ **Tip**:Change Store Number, Items on Promotion and Oil Price to see weekly and seasonl fluctuations")
 st.info(f"Filtering for Store #{store_nbr}, Promotion ≈ {onpromotion}, Oil Price ≈ {dcoilwtico}")
+
 
 
 
